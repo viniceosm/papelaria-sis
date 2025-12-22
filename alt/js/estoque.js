@@ -22,9 +22,11 @@ async function carregarEstoque(paginado = false) {
   if (carregando) return;
   carregando = true;
 
+  const t0 = performance.now();
+
   let q = query(
     collection(db, "produtos"),
-    orderBy("descricao"),
+    orderBy("descricao_lower"),
     limit(50)
   );
 
@@ -38,23 +40,35 @@ async function carregarEstoque(paginado = false) {
   }
 
   const snap = await getDocs(q);
+  const t1 = performance.now();
+
   const tbody = document.querySelector("#tabelaEstoque tbody");
+  const fragment = document.createDocumentFragment(); // 🔥 aqui está o ganho
 
-  snap.forEach(doc => {
-    const p = doc.data();
-    ultimoDoc = doc;
+  snap.forEach(d => {
+    const p = d.data();
+    ultimoDoc = d;
 
-    tbody.insertAdjacentHTML("beforeend", `
-      <tr>
-        <td>${p.cod ?? "-"}</td>
-        <td>${p.descricao}</td>
-        <td>${p.categoria ?? "-"}</td>
-        <td>${p.estoque ?? 0}</td>
-        <td>R$ ${Number(p.preco ?? 0).toFixed(2)}</td>
-        <td>${p.ativo ? "Sim" : "Não"}</td>
-      </tr>
-    `);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p.cod ?? "-"}</td>
+      <td>${p.descricao}</td>
+      <td>${p.categoria ?? "-"}</td>
+      <td>${p.estoque ?? 0}</td>
+      <td>R$ ${Number(p.preco ?? 0).toFixed(2)}</td>
+      <td>${p.ativo ? "Sim" : "Não"}</td>
+    `;
+
+    fragment.appendChild(tr);
   });
+
+  tbody.appendChild(fragment); // 🔥 UM reflow só
+
+  const t2 = performance.now();
+
+  console.log(`⏱️ Firestore: ${(t1 - t0).toFixed(2)} ms`);
+  console.log(`🎨 Render: ${(t2 - t1).toFixed(2)} ms`);
+  console.log(`🚀 Total: ${(t2 - t0).toFixed(2)} ms`);
 
   carregando = false;
 }
