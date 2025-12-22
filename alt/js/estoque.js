@@ -53,4 +53,6 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
   });
 });
 
-carregarEstoque();
+window.addEventListener("usuario-autenticado", () => {
+  carregarEstoque();
+});
