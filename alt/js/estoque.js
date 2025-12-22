@@ -92,16 +92,10 @@ async function carregarEstoque(paginado = false) {
     tr.innerHTML = `
       <td><input type="checkbox"></td>
       <td>${p.cod ?? "-"}</td>
-      <td>
-        ${p.descricao}
-        <br>
-        <small style="color:#888;font-size:11px">
-          ${p.descricao_lower ?? "(sem descricao_lower)"}
-        </small>
-      </td>
+      <td>${p.descricao}</td>
       <td>${p.categoria ?? "-"}</td>
-      <td>${p.estoque ?? 0}</td>
-      <td>R$ ${Number(p.preco ?? 0).toFixed(2)}</td>
+      <td>${p.qtde ?? 0}</td>
+      <td>R$ ${Number(p.precoVenda ?? 0).toFixed(2)}</td>
       <td>${p.ativo ? "Sim" : "Não"}</td>
     `;
 
