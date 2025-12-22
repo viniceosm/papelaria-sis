@@ -1,0 +1,45 @@
+body {
+  background: #0e0e11;
+  color: #fff;
+  font-family: Inter, Arial, sans-serif;
+  padding: 24px;
+}
+
+h1 {
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #15151c;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+thead {
+  background: #1f1f2b;
+}
+
+th, td {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  cursor: pointer;
+  user-select: none;
+}
+
+th:hover {
+  background: #2a2a3a;
+}
+
+tr:nth-child(even) {
+  background: #181820;
+}
+
+tr:hover {
+  background: #2a2a3a;
+}
