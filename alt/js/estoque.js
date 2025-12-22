@@ -7,7 +7,8 @@ import {
   limit,
   startAfter,
   writeBatch,
-  doc
+  doc,
+  getDocsFromCache
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let ultimoDoc = null;
@@ -39,11 +40,20 @@ async function carregarEstoque(paginado = false) {
     );
   }
 
-  const snap = await getDocs(q);
+  let snap;
+
+  try {
+    snap = await getDocsFromCache(q);
+    console.log("📦 Dados vindos do CACHE");
+  } catch {
+    snap = await getDocs(q);
+    console.log("🌐 Dados vindos da REDE");
+  }
+
   const t1 = performance.now();
 
   const tbody = document.querySelector("#tabelaEstoque tbody");
-  const fragment = document.createDocumentFragment(); // 🔥 aqui está o ganho
+  const fragment = document.createDocumentFragment();
 
   snap.forEach(d => {
     const p = d.data();
@@ -62,7 +72,7 @@ async function carregarEstoque(paginado = false) {
     fragment.appendChild(tr);
   });
 
-  tbody.appendChild(fragment); // 🔥 UM reflow só
+  tbody.appendChild(fragment);
 
   const t2 = performance.now();
 
