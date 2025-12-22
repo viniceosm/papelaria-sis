@@ -140,56 +140,47 @@ function normalizarDescricao(str) {
 
 async function corrigirDescricaoLowerComLoop() {
   if (!confirm(
-    "Isso vai atualizar TODOS os produtos sem descricao_lower.\n\nDeseja continuar?"
-  )) {
-    return;
-  }
+    "Isso vai REGERAR descricao_lower de TODOS os produtos.\n\nDeseja continuar?"
+  )) return;
 
   const snap = await getDocs(collection(db, "produtos"));
 
   let batch = writeBatch(db);
-  let batchCount = 0;
-  let totalAtualizados = 0;
-  let totalBatches = 0;
+  let count = 0;
+  let total = 0;
 
   for (const d of snap.docs) {
     const data = d.data();
 
-    if (!data.descricao_lower && data.descricao) {
+    if (!data.descricao) continue;
+
+    const normalizada = normalizarDescricao(data.descricao);
+
+    // 🔥 atualiza se estiver diferente
+    if (data.descricao_lower !== normalizada) {
       batch.update(doc(db, "produtos", d.id), {
-        descricao_lower: normalizarDescricao(data.descricao)
+        descricao_lower: normalizada
       });
 
-      batchCount++;
-      totalAtualizados++;
+      count++;
+      total++;
 
-      // 🔥 quando chega em 500, comita e cria novo batch
-      if (batchCount === 500) {
+      if (count === 500) {
         await batch.commit();
-        totalBatches++;
-
         batch = writeBatch(db);
-        batchCount = 0;
+        count = 0;
       }
     }
   }
 
-  // 🔥 commit final (se sobrou algo)
-  if (batchCount > 0) {
-    await batch.commit();
-    totalBatches++;
-  }
+  if (count > 0) await batch.commit();
 
-  alert(
-    `✅ Correção concluída!\n\n` +
-    `Produtos atualizados: ${totalAtualizados}\n` +
-    `Batches executados: ${totalBatches}`
-  );
+  alert(`✅ descricao_lower corrigida!\n\nRegistros atualizados: ${total}`);
 }
 
-// document
-//   .getElementById("corrigirDescricaoLower")
-//   .addEventListener("click", corrigirDescricaoLowerComLoop);
+document
+  .getElementById("corrigirDescricaoLower")
+  .addEventListener("click", corrigirDescricaoLowerComLoop);
 
 // clique para ordenar
 document.querySelectorAll("th[data-sort]").forEach(th => {
