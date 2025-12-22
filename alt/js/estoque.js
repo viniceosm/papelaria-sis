@@ -3,29 +3,46 @@ import {
   collection,
   getDocs,
   query,
-  orderBy
+  orderBy,
+  limit,
+  startAfter
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+let ultimoDoc = null;
+let carregando = false;
 
 let ordenacao = {
   campo: "descricao",
   direcao: "asc"
 };
 
-async function carregarEstoque() {
-  const q = query(
+async function carregarEstoque(paginado = false) {
+  if (carregando) return;
+  carregando = true;
+
+  let q = query(
     collection(db, "produtos"),
-    orderBy(ordenacao.campo, ordenacao.direcao)
+    orderBy("descricao"),
+    limit(50)
   );
+
+  if (paginado && ultimoDoc) {
+    q = query(
+      collection(db, "produtos"),
+      orderBy("descricao"),
+      startAfter(ultimoDoc),
+      limit(50)
+    );
+  }
 
   const snap = await getDocs(q);
   const tbody = document.querySelector("#tabelaEstoque tbody");
 
-  tbody.innerHTML = "";
-
   snap.forEach(doc => {
     const p = doc.data();
+    ultimoDoc = doc;
 
-    tbody.innerHTML += `
+    tbody.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${p.cod ?? "-"}</td>
         <td>${p.descricao}</td>
@@ -34,8 +51,10 @@ async function carregarEstoque() {
         <td>R$ ${Number(p.preco ?? 0).toFixed(2)}</td>
         <td>${p.ativo ? "Sim" : "Não"}</td>
       </tr>
-    `;
+    `);
   });
+
+  carregando = false;
 }
 
 // clique para ordenar
@@ -52,6 +71,10 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
     carregarEstoque();
   });
 });
+
+document.getElementById("carregarMais").onclick = () => {
+  carregarEstoque(true);
+};
 
 window.addEventListener("usuario-autenticado", () => {
   carregarEstoque();
