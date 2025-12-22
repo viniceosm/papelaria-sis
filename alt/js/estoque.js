@@ -55,11 +55,12 @@ async function carregarEstoque(paginado = false) {
   const t1 = performance.now();
 
   const tbody = document.querySelector("#tabelaEstoque tbody");
+  tbody.innerHTML = ""; // limpa página anterior
+
   const fragment = document.createDocumentFragment();
 
   snap.forEach(d => {
     const p = d.data();
-    ultimoDoc = d;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -74,6 +75,12 @@ async function carregarEstoque(paginado = false) {
 
     fragment.appendChild(tr);
   });
+
+  ultimoDoc = snap.docs[snap.docs.length - 1] ?? null;
+
+  const btnNext = document.getElementById("nextPage");
+
+  btnNext.disabled = snap.docs.length < PAGE_SIZE;
 
   document.getElementById("infoPagina").innerText =
   `Mostrando ${PAGE_SIZE} registros`;
@@ -152,14 +159,13 @@ async function corrigirDescricaoLowerComLoop() {
 // clique para ordenar
 document.querySelectorAll("th[data-sort]").forEach(th => {
   th.addEventListener("click", () => {
-    const campo = th.dataset.sort;
+    ordenacao.campo = th.dataset.sort;
+    ordenacao.direcao = "asc";
 
-    ordenacao.direcao =
-      ordenacao.campo === campo && ordenacao.direcao === "asc"
-        ? "desc"
-        : "asc";
+    paginaAtual = 1;
+    ultimoDoc = null;
+    document.querySelector("#tabelaEstoque tbody").innerHTML = "";
 
-    ordenacao.campo = campo;
     carregarEstoque();
   });
 });
