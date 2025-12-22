@@ -11,8 +11,11 @@ import {
   getDocsFromCache
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+const PAGE_SIZE = 10;
+
 let ultimoDoc = null;
 let carregando = false;
+let paginaAtual = 1;
 
 let ordenacao = {
   campo: "descricao",
@@ -28,7 +31,7 @@ async function carregarEstoque(paginado = false) {
   let q = query(
     collection(db, "produtos"),
     orderBy("descricao_lower"),
-    limit(50)
+    limit(PAGE_SIZE)
   );
 
   if (paginado && ultimoDoc) {
@@ -36,7 +39,7 @@ async function carregarEstoque(paginado = false) {
       collection(db, "produtos"),
       orderBy("descricao_lower"),
       startAfter(ultimoDoc),
-      limit(50)
+      limit(PAGE_SIZE)
     );
   }
 
@@ -71,6 +74,9 @@ async function carregarEstoque(paginado = false) {
 
     fragment.appendChild(tr);
   });
+
+  document.getElementById("infoPagina").innerText =
+  `Mostrando ${PAGE_SIZE} registros`;
 
   tbody.appendChild(fragment);
 
@@ -163,5 +169,14 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
 // };
 
 window.addEventListener("usuario-autenticado", () => {
+  paginaAtual = 1;
+  ultimoDoc = null;
+  document.querySelector("#tabelaEstoque tbody").innerHTML = "";
   carregarEstoque();
 });
+
+document.getElementById("nextPage").onclick = () => {
+  paginaAtual++;
+  document.getElementById("paginaAtual").innerText = paginaAtual;
+  carregarEstoque(true);
+};
