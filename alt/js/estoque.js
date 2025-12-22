@@ -1,4 +1,3 @@
-<script type="module">
 import { db } from "./firebase.js";
 import {
   collection,
@@ -55,4 +54,3 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
 });
 
 carregarEstoque();
-</script>
