@@ -40,14 +40,13 @@ async function carregarEstoque(paginado = false) {
     );
   }
 
-  let snap;
+  let snap = await getDocsFromCache(q);
 
-  try {
-    snap = await getDocsFromCache(q);
-    console.log("📦 Dados vindos do CACHE");
-  } catch {
+  if (snap.empty) {
     snap = await getDocs(q);
     console.log("🌐 Dados vindos da REDE");
+  } else {
+    console.log("📦 Dados vindos do CACHE");
   }
 
   const t1 = performance.now();
