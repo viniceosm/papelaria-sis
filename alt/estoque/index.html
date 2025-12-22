@@ -7,34 +7,52 @@
 </head>
 <body>
 
-<h1>📦 Estoque</h1>
+  <div class="topbar">
+    <div class="title">
+      📦 <strong>Estoque</strong>
+    </div>
 
-<button id="corrigirDescricaoLower">
-  Corrigir descricao_lower (TEMP)
-</button>
+    <div class="actions">
+      <button class="btn ghost">Filtros</button>
+      <button class="btn ghost">Ordenar</button>
+    </div>
+  </div>
 
-<table id="tabelaEstoque">
-  <thead>
-    <tr>
-      <th data-sort="cod">Código</th>
-      <th data-sort="descricao">Descrição</th>
-      <th data-sort="categoria">Categoria</th>
-      <th data-sort="estoque">Estoque</th>
-      <th data-sort="preco">Preço</th>
-      <th data-sort="ativo">Ativo</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <div class="table-wrapper">
+    <table class="advanced-table" id="tabelaEstoque">
+      <thead>
+        <tr>
+          <th><input type="checkbox"></th>
+          <th data-sort="cod">Código</th>
+          <th data-sort="descricao">Descrição</th>
+          <th data-sort="categoria">Categoria</th>
+          <th data-sort="estoque">Estoque</th>
+          <th data-sort="preco">Preço</th>
+          <th data-sort="ativo">Ativo</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-<button id="carregarMais">Carregar mais</button>
+  <div class="table-footer">
+    <span>Mostrando 50 itens</span>
 
-<!-- Firebase + Auth -->
-<script type="module" src="../js/firebase.js"></script>
-<script type="module" src="../js/auth-guard.js"></script>
+    <div class="pagination">
+      <button class="btn ghost">‹</button>
+      <span>Página 1</span>
+      <button class="btn ghost">›</button>
+    </div>
+  </div>
 
-<!-- Lógica da tabela -->
-<script type="module" src="../js/estoque.js"></script>
+  <!-- <button id="carregarMais">Carregar mais</button> -->
+
+  <!-- Firebase + Auth -->
+  <script type="module" src="../js/firebase.js"></script>
+  <script type="module" src="../js/auth-guard.js"></script>
+
+  <!-- Lógica da tabela -->
+  <script type="module" src="../js/estoque.js"></script>
 
 </body>
 </html>

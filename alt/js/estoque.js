@@ -60,6 +60,7 @@ async function carregarEstoque(paginado = false) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td><input type="checkbox"></td>
       <td>${p.cod ?? "-"}</td>
       <td>${p.descricao}</td>
       <td>${p.categoria ?? "-"}</td>
