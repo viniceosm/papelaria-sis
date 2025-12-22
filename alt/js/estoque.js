@@ -158,9 +158,9 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
   });
 });
 
-document.getElementById("carregarMais").onclick = () => {
-  carregarEstoque(true);
-};
+// document.getElementById("carregarMais").onclick = () => {
+//   carregarEstoque(true);
+// };
 
 window.addEventListener("usuario-autenticado", () => {
   carregarEstoque();
