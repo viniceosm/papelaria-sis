@@ -13,6 +13,7 @@ import {
 
 const PAGE_SIZE = 10;
 
+let cursores = []; // guarda o ultimoDoc de cada página
 let ultimoDoc = null;
 let carregando = false;
 let paginaAtual = 1;
@@ -34,13 +35,17 @@ async function carregarEstoque(paginado = false) {
     limit(PAGE_SIZE)
   );
 
-  if (paginado && ultimoDoc) {
-    q = query(
-      collection(db, "produtos"),
-      orderBy("descricao_lower"),
-      startAfter(ultimoDoc),
-      limit(PAGE_SIZE)
-    );
+  if (paginado && paginaAtual > 1) {
+    const cursorAnterior = cursores[paginaAtual - 1];
+
+    if (cursorAnterior) {
+      q = query(
+        collection(db, "produtos"),
+        orderBy("descricao_lower"),
+        startAfter(cursorAnterior),
+        limit(PAGE_SIZE)
+      );
+    }
   }
 
   let snap = await getDocsFromCache(q);
@@ -77,6 +82,8 @@ async function carregarEstoque(paginado = false) {
   });
 
   ultimoDoc = snap.docs[snap.docs.length - 1] ?? null;
+
+  cursores[paginaAtual] = ultimoDoc;
 
   const btnNext = document.getElementById("nextPage");
 
@@ -164,6 +171,7 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
 
     paginaAtual = 1;
     ultimoDoc = null;
+    cursores = [];
     document.querySelector("#tabelaEstoque tbody").innerHTML = "";
 
     carregarEstoque();
@@ -177,12 +185,28 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
 window.addEventListener("usuario-autenticado", () => {
   paginaAtual = 1;
   ultimoDoc = null;
+  cursores = [];
   document.querySelector("#tabelaEstoque tbody").innerHTML = "";
+  document.getElementById("prevPage").disabled = true;
   carregarEstoque();
 });
 
 document.getElementById("nextPage").onclick = () => {
   paginaAtual++;
   document.getElementById("paginaAtual").innerText = paginaAtual;
+  document.getElementById("prevPage").disabled = false;
   carregarEstoque(true);
+};
+
+document.getElementById("prevPage").onclick = () => {
+  if (paginaAtual <= 1) return;
+
+  paginaAtual--;
+  document.getElementById("paginaAtual").innerText = paginaAtual;
+
+  document.querySelector("#tabelaEstoque tbody").innerHTML = "";
+  carregarEstoque(true);
+
+  // desativa se voltar pra primeira
+  document.getElementById("prevPage").disabled = paginaAtual === 1;
 };
