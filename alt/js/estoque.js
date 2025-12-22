@@ -13,6 +13,7 @@ import {
 
 const PAGE_SIZE = 10;
 
+let forcarRede = false;
 let cursores = []; // guarda o ultimoDoc de cada página
 let ultimoDoc = null;
 let carregando = false;
@@ -61,13 +62,20 @@ async function carregarEstoque(paginado = false) {
     }
   }
 
-  let snap = await getDocsFromCache(q);
+  let snap;
 
-  if (snap.empty) {
+  if (forcarRede) {
     snap = await getDocs(q);
-    console.log("🌐 Dados vindos da REDE");
+    console.log("🌐 Ordenação: dados vindos da REDE");
+    forcarRede = false;
   } else {
-    console.log("📦 Dados vindos do CACHE");
+    snap = await getDocsFromCache(q);
+    if (snap.empty) {
+      snap = await getDocs(q);
+      console.log("🌐 Dados vindos da REDE");
+    } else {
+      console.log("📦 Dados vindos do CACHE");
+    }
   }
 
   const t1 = performance.now();
@@ -201,6 +209,7 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
     paginaAtual = 1;
     ultimoDoc = null;
     cursores = [];
+    forcarRede = true;
 
     // 🔥 ATUALIZA UI
     document.getElementById("paginaAtual").innerText = "1";
