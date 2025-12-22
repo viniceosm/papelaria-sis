@@ -139,9 +139,9 @@ async function corrigirDescricaoLowerComLoop() {
   );
 }
 
-document
-  .getElementById("corrigirDescricaoLower")
-  .addEventListener("click", corrigirDescricaoLowerComLoop);
+// document
+//   .getElementById("corrigirDescricaoLower")
+//   .addEventListener("click", corrigirDescricaoLowerComLoop);
 
 // clique para ordenar
 document.querySelectorAll("th[data-sort]").forEach(th => {
