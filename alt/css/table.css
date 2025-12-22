@@ -141,3 +141,10 @@ input[type="checkbox"] {
   align-items: center;
   gap: 8px;
 }
+
+th.asc::after { content: " ▲"; }
+th.desc::after { content: " ▼"; }
+
+th.active {
+  background: #f3f3f3;
+}

@@ -27,11 +27,19 @@ async function carregarEstoque(paginado = false) {
   if (carregando) return;
   carregando = true;
 
+  document.getElementById("nextPage").disabled = true;
+  document.getElementById("prevPage").disabled = true;
+
   const t0 = performance.now();
 
   let q = query(
     collection(db, "produtos"),
-    orderBy("descricao_lower"),
+    orderBy(
+      ordenacao.campo === "descricao"
+        ? "descricao_lower"
+        : ordenacao.campo,
+      ordenacao.direcao
+    ),
     limit(PAGE_SIZE)
   );
 
@@ -41,7 +49,12 @@ async function carregarEstoque(paginado = false) {
     if (cursorAnterior) {
       q = query(
         collection(db, "produtos"),
-        orderBy("descricao_lower"),
+        orderBy(
+          ordenacao.campo === "descricao"
+            ? "descricao_lower"
+            : ordenacao.campo,
+          ordenacao.direcao
+        ),
         startAfter(cursorAnterior),
         limit(PAGE_SIZE)
       );
@@ -87,6 +100,7 @@ async function carregarEstoque(paginado = false) {
 
   const btnNext = document.getElementById("nextPage");
 
+  document.getElementById("prevPage").disabled = paginaAtual === 1;
   btnNext.disabled = snap.docs.length < PAGE_SIZE;
 
   document.getElementById("infoPagina").innerText =
@@ -166,12 +180,33 @@ async function corrigirDescricaoLowerComLoop() {
 // clique para ordenar
 document.querySelectorAll("th[data-sort]").forEach(th => {
   th.addEventListener("click", () => {
-    ordenacao.campo = th.dataset.sort;
-    ordenacao.direcao = "asc";
+    const campo = th.dataset.sort;
 
+    // 🔁 toggle asc / desc
+    if (ordenacao.campo === campo) {
+      ordenacao.direcao =
+        ordenacao.direcao === "asc" ? "desc" : "asc";
+    } else {
+      ordenacao.campo = campo;
+      ordenacao.direcao = "asc";
+    }
+
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+      th.classList.remove("asc", "desc", "active");
+    });
+
+    th.classList.add(ordenacao.direcao);
+
+    // 🔄 reset paginação
     paginaAtual = 1;
     ultimoDoc = null;
     cursores = [];
+
+    // 🔥 ATUALIZA UI
+    document.getElementById("paginaAtual").innerText = "1";
+    document.getElementById("prevPage").disabled = true;
+    document.getElementById("nextPage").disabled = false;
+
     document.querySelector("#tabelaEstoque tbody").innerHTML = "";
 
     carregarEstoque();
