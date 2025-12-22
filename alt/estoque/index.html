@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Estoque - Papelaria</title>
+  <link rel="stylesheet" href="../css/table.css" />
+</head>
+<body>
+
+<h1>📦 Estoque</h1>
+
+<table id="tabelaEstoque">
+  <thead>
+    <tr>
+      <th data-sort="cod">Código</th>
+      <th data-sort="descricao">Descrição</th>
+      <th data-sort="categoria">Categoria</th>
+      <th data-sort="estoque">Estoque</th>
+      <th data-sort="preco">Preço</th>
+      <th data-sort="ativo">Ativo</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<!-- Firebase + Auth -->
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/auth-guard.js"></script>
+
+<!-- Lógica da tabela -->
+<script type="module" src="../js/estoque.js"></script>
+
+</body>
+</html>
