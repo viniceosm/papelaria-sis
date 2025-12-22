@@ -1,6 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  initializeFirestore,
+  persistentLocalCache
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBjvTgvMxOiUcJzud6Vapa5X8ZnGeph0aA",
@@ -13,4 +16,8 @@ export const firebaseConfig = {
 
 export const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db   = getFirestore(app);
+
+// 🔥 ISSO AQUI É O DIVISOR DE ÁGUAS
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache()
+});
