@@ -29,7 +29,7 @@ async function carregarEstoque(paginado = false) {
   if (paginado && ultimoDoc) {
     q = query(
       collection(db, "produtos"),
-      orderBy("descricao"),
+      orderBy("descricao_lower"),
       startAfter(ultimoDoc),
       limit(50)
     );
