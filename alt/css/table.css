@@ -1,10 +1,11 @@
-/* =========================
-   📱 MOBILE (até 768px)
-   ========================= */
+/* =========================================================
+   📱 MOBILE FIRST – AJUSTES REAIS (até 768px)
+   ========================================================= */
 @media (max-width: 768px) {
 
   body {
     padding: 12px;
+    background: radial-gradient(circle at top, #151520, #0b0b0f);
   }
 
   /* 🔝 TOPBAR */
@@ -16,6 +17,9 @@
 
   .topbar .title {
     font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .actions {
@@ -25,7 +29,8 @@
 
   .actions .btn {
     flex: 1;
-    text-align: center;
+    padding: 8px;
+    font-size: 12px;
   }
 
   /* 🔍 SEARCH */
@@ -38,28 +43,45 @@
     min-width: 0;
     font-size: 14px;
     padding: 8px 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
   }
 
   .search-count {
     font-size: 11px;
+    color: var(--muted);
   }
 
-  /* 📦 TABLE */
+  /* 📦 TABLE CONTAINER */
   .table-wrapper {
+    background: var(--panel);
     border-radius: 10px;
+    border: 1px solid var(--border);
     overflow-x: auto;
   }
 
+  /* 🧾 TABLE */
   .advanced-table {
+    width: 100%;
     font-size: 12px;
+    border-collapse: collapse;
   }
 
-  thead th,
+  thead {
+    background: var(--header);
+  }
+
+  thead th {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
   tbody td {
     padding: 10px 8px;
+    vertical-align: top;
   }
 
-  /* ❌ Esconder colunas não essenciais */
+  /* ❌ ESCONDER COLUNAS NÃO ESSENCIAIS */
   .advanced-table th:nth-child(1),
   .advanced-table td:nth-child(1), /* checkbox */
 
@@ -67,26 +89,41 @@
   .advanced-table td:nth-child(4), /* categoria */
 
   .advanced-table th:nth-child(7),
-  .advanced-table td:nth-child(7)  /* ativo */ {
+  .advanced-table td:nth-child(7) /* ativo */ {
     display: none;
   }
 
-  /* 🧾 DESCRIÇÃO EM DESTAQUE */
+  /* 🧾 DESCRIÇÃO – FOCO PRINCIPAL */
   .advanced-table td:nth-child(3) {
     white-space: normal;
     line-height: 1.35;
     font-size: 13px;
+    color: var(--text);
   }
 
-  .advanced-table td:nth-child(3) mark {
-    padding: 0 3px;
-    border-radius: 3px;
+  .advanced-table td:nth-child(3) small {
+    display: block;
+    color: var(--muted);
+    margin-top: 2px;
   }
 
   /* 💰 PREÇO */
   .advanced-table td:nth-child(6) {
     font-weight: 600;
     white-space: nowrap;
+  }
+
+  /* 📊 ESTOQUE */
+  .advanced-table td:nth-child(5) {
+    text-align: right;
+    font-weight: 500;
+  }
+
+  /* ✨ HIGHLIGHT */
+  mark {
+    background: rgba(255, 200, 0, 0.35);
+    padding: 0 3px;
+    border-radius: 3px;
   }
 
   /* 🧭 FOOTER */
@@ -96,13 +133,17 @@
     align-items: center;
     text-align: center;
     padding: 10px;
+    background: var(--header);
   }
 
   .pagination {
+    display: flex;
+    align-items: center;
     gap: 14px;
   }
 
   .pagination .btn {
     padding: 6px 10px;
+    font-size: 13px;
   }
 }
