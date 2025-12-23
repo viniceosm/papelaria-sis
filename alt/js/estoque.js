@@ -29,14 +29,21 @@ let ordenacao = {
   direcao: "asc"
 };
 
+const MAPA_SORT_HTML = {
+  descricao: "descricao",
+  qtde: "qtde",
+  precoVenda: "preco",
+  ativo: "ativo"
+};
+
 const MAPA_ORDENACAO = {
   descricao: "descricao_lower",
 
   preco_asc: "busca_preco_asc",
   preco_desc: "busca_preco_desc",
 
-  estoque_asc: "busca_estoque_asc",
-  estoque_desc: "busca_estoque_desc",
+  qtde_asc: "busca_qtde_asc",
+  qtde_desc: "busca_qtde_desc",
 
   ativo_asc: "busca_ativo_asc",
   ativo_desc: "busca_ativo_desc"
@@ -53,10 +60,19 @@ async function carregarEstoque(paginado = false) {
   const termoNormalizado =
     typeof termoBusca === "string" ? termoBusca.trim() : "";
 
+  const campoNormalizado = MAPA_SORT_HTML[ordenacao.campo];
+
+  if (!campoNormalizado) {
+    console.error("Campo HTML não mapeado:", ordenacao.campo);
+    esconderSkeleton();
+    carregando = false;
+    return;
+  }
+
   const chaveOrdenacao =
-    ordenacao.campo === "descricao"
+    campoNormalizado === "descricao"
       ? "descricao"
-      : `${ordenacao.campo}_${ordenacao.direcao}`;
+      : `${campoNormalizado}_${ordenacao.direcao}`;
 
   const campoOrdenacao = MAPA_ORDENACAO[chaveOrdenacao];
 
@@ -72,13 +88,19 @@ async function carregarEstoque(paginado = false) {
   if (termoNormalizado.length > 0) {
     const termo = normalizarDescricao(termoNormalizado);
 
-    constraints.push(
-      where(campoOrdenacao, ">=", termo),
-      where(campoOrdenacao, "<", termo + "\uf8ff"),
-      orderBy(campoOrdenacao, "asc")
-    );
-  } else {
-    constraints.push(orderBy(campoOrdenacao, "asc"));
+    if (campoNormalizado === "descricao") {
+      constraints.push(
+        where("descricao_lower", ">=", termo),
+        where("descricao_lower", "<", termo + "\uf8ff"),
+        orderBy("descricao_lower", "asc")
+      );
+    } else {
+      constraints.push(
+        where(campoOrdenacao, ">=", termo),
+        where(campoOrdenacao, "<", termo + "\uf8ff"),
+        orderBy(campoOrdenacao, "asc")
+      );
+    }
   }
 
   constraints.push(limit(PAGE_SIZE));
@@ -244,8 +266,8 @@ async function gerarCamposBuscaOrdenacao() {
       busca_preco_asc: `${descricaoLower}|${precoAsc(preco)}`,
       busca_preco_desc: `${descricaoLower}|${precoDesc(preco)}`,
 
-      busca_estoque_asc: `${descricaoLower}|${estoqueAsc(qtde)}`,
-      busca_estoque_desc: `${descricaoLower}|${estoqueDesc(qtde)}`,
+      busca_qtde_asc: `${descricaoLower}|${estoqueAsc(qtde)}`,
+      busca_qtde_desc: `${descricaoLower}|${estoqueDesc(qtde)}`,
 
       busca_ativo_asc: `${descricaoLower}|${ativoAsc(ativo)}`,
       busca_ativo_desc: `${descricaoLower}|${ativoDesc(ativo)}`
