@@ -46,6 +46,9 @@ async function carregarEstoque(paginado = false) {
     ordenacao.campo === "descricao"
       ? "descricao_lower"
       : ordenacao.campo;
+
+  // 🔥 campo usado EXCLUSIVAMENTE para busca
+  const campoBusca = "descricao_lower";
   
   let constraints = [
     orderBy(orderField, ordenacao.direcao),
@@ -54,10 +57,10 @@ async function carregarEstoque(paginado = false) {
   
   if (termoBusca) {
     const termo = normalizarDescricao(termoBusca);
-  
+
     constraints.unshift(
-      where(orderField, ">=", termo),
-      where(orderField, "<", termo + "\uf8ff")
+      where("descricao_lower", ">=", termo),
+      where("descricao_lower", "<", termo + "\uf8ff")
     );
   }
   
