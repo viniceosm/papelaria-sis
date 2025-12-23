@@ -8,7 +8,9 @@ import {
   startAfter,
   writeBatch,
   doc,
-  getDocsFromCache
+  getDocsFromCache,
+  getCountFromServer,
+  where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const PAGE_SIZE = 10;
@@ -18,6 +20,9 @@ let cursores = []; // guarda o ultimoDoc de cada página
 let ultimoDoc = null;
 let carregando = false;
 let paginaAtual = 1;
+let termoBusca = "";
+let totalRegistrosBusca = 0;
+let timerBusca;
 
 let ordenacao = {
   campo: "descricao",
@@ -33,34 +38,35 @@ async function carregarEstoque(paginado = false) {
 
   const t0 = performance.now();
 
-  let q = query(
-    collection(db, "produtos"),
-    orderBy(
-      ordenacao.campo === "descricao"
-        ? "descricao_lower"
-        : ordenacao.campo,
-      ordenacao.direcao
-    ),
-    limit(PAGE_SIZE)
-  );
+  let qBase = collection(db, "produtos");
 
+  let orderField =
+    ordenacao.campo === "descricao"
+      ? "descricao_lower"
+      : ordenacao.campo;
+  
+  let constraints = [
+    orderBy(orderField, ordenacao.direcao),
+    limit(PAGE_SIZE)
+  ];
+  
+  if (termoBusca) {
+    const termo = normalizarDescricao(termoBusca);
+  
+    constraints.unshift(
+      where(orderField, ">=", termo),
+      where(orderField, "<", termo + "\uf8ff")
+    );
+  }
+  
   if (paginado && paginaAtual > 1) {
     const cursorAnterior = cursores[paginaAtual - 1];
-
     if (cursorAnterior) {
-      q = query(
-        collection(db, "produtos"),
-        orderBy(
-          ordenacao.campo === "descricao"
-            ? "descricao_lower"
-            : ordenacao.campo,
-          ordenacao.direcao
-        ),
-        startAfter(cursorAnterior),
-        limit(PAGE_SIZE)
-      );
+      constraints.push(startAfter(cursorAnterior));
     }
   }
+  
+  const q = query(qBase, ...constraints);
 
   let snap;
 
@@ -87,12 +93,16 @@ async function carregarEstoque(paginado = false) {
 
   snap.forEach(d => {
     const p = d.data();
+    
+    const descricaoHTML = termoBusca
+    ? highlight(p.descricao, termoBusca)
+    : p.descricao;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><input type="checkbox"></td>
       <td>${p.cod ?? "-"}</td>
-      <td>${p.descricao}</td>
+      <td>${descricaoHTML}</td>
       <td>${p.categoria ?? "-"}</td>
       <td>${p.qtde ?? 0}</td>
       <td>R$ ${Number(p.precoVenda ?? 0).toFixed(2)}</td>
@@ -123,6 +133,47 @@ async function carregarEstoque(paginado = false) {
   console.log(`🚀 Total: ${(t2 - t0).toFixed(2)} ms`);
 
   carregando = false;
+}
+
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[m]);
+}
+
+function highlight(texto, termo) {
+  if (!termo) return escapeHTML(texto);
+
+  const escapedTermo = termo.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escapedTermo})`, "gi");
+
+  return escapeHTML(texto).replace(regex, "<mark>$1</mark>");
+}
+
+async function contarResultadosBusca() {
+  if (!termoBusca) {
+    totalRegistrosBusca = 0;
+    document.getElementById("contadorResultados").innerText = "";
+    return;
+  }
+
+  const termo = normalizarDescricao(termoBusca);
+
+  const qCount = query(
+    collection(db, "produtos"),
+    where("descricao_lower", ">=", termo),
+    where("descricao_lower", "<", termo + "\uf8ff")
+  );
+
+  const snap = await getCountFromServer(qCount);
+  totalRegistrosBusca = snap.data().count;
+
+  document.getElementById("contadorResultados").innerText =
+    `🔎 ${totalRegistrosBusca} resultado(s) encontrados`;
 }
 
 function normalizarDescricao(str) {
@@ -216,6 +267,25 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
 // document.getElementById("carregarMais").onclick = () => {
 //   carregarEstoque(true);
 // };
+
+document.getElementById("busca").addEventListener("input", e => {
+  clearTimeout(timerBusca);
+
+  timerBusca = setTimeout(async () => {
+    termoBusca = e.target.value.trim();
+
+    forcarRede = true;
+    paginaAtual = 1;
+    cursores = [];
+    ultimoDoc = null;
+
+    document.getElementById("paginaAtual").innerText = "1";
+    document.getElementById("prevPage").disabled = true;
+
+    await contarResultadosBusca();
+    carregarEstoque();
+  }, 300);
+});
 
 window.addEventListener("usuario-autenticado", () => {
   paginaAtual = 1;
