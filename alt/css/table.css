@@ -238,6 +238,36 @@ mark {
 }
 
 /* =========================================================
+   ⏳ SKELETON LOADING
+   ========================================================= */
+
+.skeleton-wrapper {
+  padding: 12px;
+}
+
+.skeleton-card {
+  background: linear-gradient(
+    110deg,
+    rgba(255,255,255,0.06) 8%,
+    rgba(255,255,255,0.12) 18%,
+    rgba(255,255,255,0.06) 33%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+
+  border-radius: 12px;
+  height: 84px;
+  margin-bottom: 10px;
+}
+
+/* animação */
+@keyframes skeleton-loading {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+/* =========================================================
    📱 RESPONSIVO (MOBILE)
    ========================================================= */
 
@@ -332,5 +362,10 @@ mark {
   .advanced-table tbody td:nth-child(4),
   .advanced-table tbody td:nth-child(7) {
     display: none;
+  }
+  
+  .skeleton-card {
+    height: 110px;
+    padding: 12px;
   }
 }
