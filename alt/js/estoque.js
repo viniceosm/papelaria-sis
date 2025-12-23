@@ -209,6 +209,92 @@ function esconderSkeleton() {
   document.querySelector("#tabelaEstoque tbody").style.display = "";
 }
 
+function pad(num, size = 11) {
+  return String(num).padStart(size, "0");
+}
+
+function precoAsc(valor) {
+  return pad(Math.round((valor || 0) * 100));
+}
+
+function precoDesc(valor) {
+  return pad(99999999999 - Math.round((valor || 0) * 100));
+}
+
+function estoqueAsc(qtde) {
+  return pad(qtde || 0, 6);
+}
+
+function estoqueDesc(qtde) {
+  return pad(999999 - (qtde || 0), 6);
+}
+
+function ativoAsc(ativo) {
+  return ativo ? "1" : "0";
+}
+
+function ativoDesc(ativo) {
+  return ativo ? "0" : "1";
+}
+
+async function gerarCamposBuscaOrdenacao() {
+  if (!confirm(
+    "Isso vai gerar/atualizar TODOS os campos de busca e ordenação.\n\nDeseja continuar?"
+  )) return;
+
+  const snap = await getDocs(collection(db, "produtos"));
+
+  let batch = writeBatch(db);
+  let count = 0;
+  let total = 0;
+  let batches = 0;
+
+  for (const d of snap.docs) {
+    const data = d.data();
+
+    if (!data.descricao) continue;
+
+    const descricaoLower = normalizarDescricao(data.descricao);
+    const preco = Number(data.precoVenda || 0);
+    const qtde = Number(data.qtde || 0);
+    const ativo = Boolean(data.ativo);
+
+    const updateData = {
+      busca_preco_asc: `${descricaoLower}|${precoAsc(preco)}`,
+      busca_preco_desc: `${descricaoLower}|${precoDesc(preco)}`,
+
+      busca_estoque_asc: `${descricaoLower}|${estoqueAsc(qtde)}`,
+      busca_estoque_desc: `${descricaoLower}|${estoqueDesc(qtde)}`,
+
+      busca_ativo_asc: `${descricaoLower}|${ativoAsc(ativo)}`,
+      busca_ativo_desc: `${descricaoLower}|${ativoDesc(ativo)}`
+    };
+
+    batch.update(doc(db, "produtos", d.id), updateData);
+
+    count++;
+    total++;
+
+    if (count === 500) {
+      await batch.commit();
+      batch = writeBatch(db);
+      count = 0;
+      batches++;
+    }
+  }
+
+  if (count > 0) {
+    await batch.commit();
+    batches++;
+  }
+
+  alert(
+    `✅ Campos gerados com sucesso!\n\n` +
+    `Produtos atualizados: ${total}\n` +
+    `Batches executados: ${batches}`
+  );
+}
+
 async function corrigirDescricaoLowerComLoop() {
   if (!confirm(
     "Isso vai REGERAR descricao_lower de TODOS os produtos.\n\nDeseja continuar?"
@@ -252,6 +338,10 @@ async function corrigirDescricaoLowerComLoop() {
 // document
 //   .getElementById("corrigirDescricaoLower")
 //   .addEventListener("click", corrigirDescricaoLowerComLoop);
+
+document
+  .getElementById("gerarCamposBusca")
+  .addEventListener("click", gerarCamposBuscaOrdenacao);
 
 // clique para ordenar
 document.querySelectorAll("th[data-sort]").forEach(th => {
