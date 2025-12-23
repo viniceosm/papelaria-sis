@@ -148,3 +148,34 @@ th.desc::after { content: " ▼"; }
 th.active {
   background: #f3f3f3;
 }
+
+.search-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-wrapper input {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #fff;
+  min-width: 220px;
+}
+
+.search-wrapper input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.search-count {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+}
+
+mark {
+  background: rgba(255, 200, 0, 0.35);
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 3px;
+}
