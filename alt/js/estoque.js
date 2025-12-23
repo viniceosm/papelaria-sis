@@ -29,88 +29,85 @@ let ordenacao = {
   direcao: "asc"
 };
 
+const MAPA_ORDENACAO = {
+  descricao: "descricao_lower",
+
+  preco_asc: "busca_preco_asc",
+  preco_desc: "busca_preco_desc",
+
+  estoque_asc: "busca_estoque_asc",
+  estoque_desc: "busca_estoque_desc",
+
+  ativo_asc: "busca_ativo_asc",
+  ativo_desc: "busca_ativo_desc"
+};
+
 async function carregarEstoque(paginado = false) {
   if (carregando) return;
   carregando = true;
-  
+
   mostrarSkeleton();
 
-  document.getElementById("nextPage").disabled = true;
-  document.getElementById("prevPage").disabled = true;
-
-  const t0 = performance.now();
-
-  let qBase = collection(db, "produtos");
-
-  let orderField =
-    ordenacao.campo === "descricao"
-      ? "descricao_lower"
-      : ordenacao.campo;
+  const qBase = collection(db, "produtos");
 
   const termoNormalizado =
-  typeof termoBusca === "string"
-    ? termoBusca.trim()
-    : "";
-  
+    typeof termoBusca === "string" ? termoBusca.trim() : "";
+
+  const chaveOrdenacao =
+    ordenacao.campo === "descricao"
+      ? "descricao"
+      : `${ordenacao.campo}_${ordenacao.direcao}`;
+
+  const campoOrdenacao = MAPA_ORDENACAO[chaveOrdenacao];
+
+  if (!campoOrdenacao) {
+    console.error("Campo de ordenação inválido:", chaveOrdenacao);
+    esconderSkeleton();
+    carregando = false;
+    return;
+  }
+
   let constraints = [];
 
   if (termoNormalizado.length > 0) {
     const termo = normalizarDescricao(termoNormalizado);
 
     constraints.push(
-      where("descricao_lower", ">=", termo),
-      where("descricao_lower", "<", termo + "\uf8ff"),
-      orderBy("descricao_lower", "asc") // obrigatório
+      where(campoOrdenacao, ">=", termo),
+      where(campoOrdenacao, "<", termo + "\uf8ff"),
+      orderBy(campoOrdenacao, "asc")
     );
-
-    if (orderField !== "descricao_lower") {
-      constraints.push(orderBy(orderField, ordenacao.direcao));
-    }
   } else {
-    // 🔥 SEM BUSCA → ordenação normal
-    constraints.push(orderBy(orderField, ordenacao.direcao));
+    constraints.push(orderBy(campoOrdenacao, "asc"));
   }
 
-constraints.push(limit(PAGE_SIZE));
-  
-  if (paginado && paginaAtual > 1) {
-    const cursorAnterior = cursores[paginaAtual - 1];
-    if (cursorAnterior) {
-      constraints.push(startAfter(cursorAnterior));
-    }
+  constraints.push(limit(PAGE_SIZE));
+
+  if (paginado && paginaAtual > 1 && cursores[paginaAtual - 1]) {
+    constraints.push(startAfter(cursores[paginaAtual - 1]));
   }
-  
+
   const q = query(qBase, ...constraints);
 
-  let snap;
+  const snap = forcarRede
+    ? await getDocs(q)
+    : (await getDocsFromCache(q)).empty
+      ? await getDocs(q)
+      : await getDocsFromCache(q);
 
-  if (forcarRede) {
-    snap = await getDocs(q);
-    console.log("🌐 Ordenação: dados vindos da REDE");
-    forcarRede = false;
-  } else {
-    snap = await getDocsFromCache(q);
-    if (snap.empty) {
-      snap = await getDocs(q);
-      console.log("🌐 Dados vindos da REDE");
-    } else {
-      console.log("📦 Dados vindos do CACHE");
-    }
-  }
-
-  const t1 = performance.now();
+  forcarRede = false;
 
   const tbody = document.querySelector("#tabelaEstoque tbody");
-  tbody.innerHTML = ""; // limpa página anterior
+  tbody.innerHTML = "";
 
   const fragment = document.createDocumentFragment();
 
   snap.forEach(d => {
     const p = d.data();
-    
+
     const descricaoHTML = termoBusca
-    ? highlight(p.descricao, termoBusca)
-    : p.descricao;
+      ? highlight(p.descricao, termoBusca)
+      : p.descricao;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -126,28 +123,12 @@ constraints.push(limit(PAGE_SIZE));
     fragment.appendChild(tr);
   });
 
-  ultimoDoc = snap.docs[snap.docs.length - 1] ?? null;
-
-  cursores[paginaAtual] = ultimoDoc;
-
-  const btnNext = document.getElementById("nextPage");
-
-  document.getElementById("prevPage").disabled = paginaAtual === 1;
-  btnNext.disabled = snap.docs.length < PAGE_SIZE;
-
-  document.getElementById("infoPagina").innerText =
-  `Mostrando ${PAGE_SIZE} registros`;
-
   tbody.appendChild(fragment);
 
-  const t2 = performance.now();
-
-  console.log(`⏱️ Firestore: ${(t1 - t0).toFixed(2)} ms`);
-  console.log(`🎨 Render: ${(t2 - t1).toFixed(2)} ms`);
-  console.log(`🚀 Total: ${(t2 - t0).toFixed(2)} ms`);
+  ultimoDoc = snap.docs[snap.docs.length - 1] ?? null;
+  cursores[paginaAtual] = ultimoDoc;
 
   esconderSkeleton();
-
   carregando = false;
 }
 
