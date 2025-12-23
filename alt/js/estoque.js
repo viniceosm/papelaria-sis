@@ -47,22 +47,31 @@ async function carregarEstoque(paginado = false) {
       ? "descricao_lower"
       : ordenacao.campo;
 
-  // 🔥 campo usado EXCLUSIVAMENTE para busca
-  const campoBusca = "descricao_lower";
+  const termoNormalizado =
+  typeof termoBusca === "string"
+    ? termoBusca.trim()
+    : "";
   
-  let constraints = [
-    orderBy(orderField, ordenacao.direcao),
-    limit(PAGE_SIZE)
-  ];
-  
-  if (termoBusca) {
-    const termo = normalizarDescricao(termoBusca);
+  let constraints = [];
 
-    constraints.unshift(
+  if (termoNormalizado.length > 0) {
+    const termo = normalizarDescricao(termoNormalizado);
+
+    constraints.push(
       where("descricao_lower", ">=", termo),
-      where("descricao_lower", "<", termo + "\uf8ff")
+      where("descricao_lower", "<", termo + "\uf8ff"),
+      orderBy("descricao_lower", "asc") // obrigatório
     );
+
+    if (orderField !== "descricao_lower") {
+      constraints.push(orderBy(orderField, ordenacao.direcao));
+    }
+  } else {
+    // 🔥 SEM BUSCA → ordenação normal
+    constraints.push(orderBy(orderField, ordenacao.direcao));
   }
+
+constraints.push(limit(PAGE_SIZE));
   
   if (paginado && paginaAtual > 1) {
     const cursorAnterior = cursores[paginaAtual - 1];
@@ -299,7 +308,12 @@ document.getElementById("busca").addEventListener("input", e => {
     document.getElementById("paginaAtual").innerText = "1";
     document.getElementById("prevPage").disabled = true;
 
-    await contarResultadosBusca();
+    if (termoBusca.length === 0) {
+      document.getElementById("contadorResultados").innerText = "";
+    } else {
+      await contarResultadosBusca();
+    }
+
     carregarEstoque();
   }, 300);
 });
