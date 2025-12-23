@@ -32,6 +32,8 @@ let ordenacao = {
 async function carregarEstoque(paginado = false) {
   if (carregando) return;
   carregando = true;
+  
+  mostrarSkeleton();
 
   document.getElementById("nextPage").disabled = true;
   document.getElementById("prevPage").disabled = true;
@@ -132,6 +134,8 @@ async function carregarEstoque(paginado = false) {
   console.log(`🎨 Render: ${(t2 - t1).toFixed(2)} ms`);
   console.log(`🚀 Total: ${(t2 - t0).toFixed(2)} ms`);
 
+  esconderSkeleton();
+
   carregando = false;
 }
 
@@ -181,6 +185,16 @@ function normalizarDescricao(str) {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+}
+
+function mostrarSkeleton() {
+  document.getElementById("skeletonEstoque").style.display = "block";
+  document.querySelector("#tabelaEstoque tbody").style.display = "none";
+}
+
+function esconderSkeleton() {
+  document.getElementById("skeletonEstoque").style.display = "none";
+  document.querySelector("#tabelaEstoque tbody").style.display = "";
 }
 
 async function corrigirDescricaoLowerComLoop() {
