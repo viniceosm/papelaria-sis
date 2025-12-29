@@ -122,7 +122,8 @@ async function carregarEstoque(paginado = false) {
   forcarRede = false;
 
   const tbody = document.querySelector("#tabelaEstoque tbody");
-  tbody.innerHTML = "";
+  // tbody.innerHTML = "";
+  limparTabelaMantendoSkeleton();
 
   const fragment = document.createDocumentFragment();
 
@@ -212,6 +213,17 @@ function mostrarSkeleton() {
 function esconderSkeleton() {
   if (!document.getElementById("skeletonEstoque")) return;
   document.getElementById("skeletonEstoque").style.display = "none";
+}
+
+function limparTabelaMantendoSkeleton() {
+  const tbody = document.querySelector("#tabelaEstoque tbody");
+  const skeleton = document.getElementById("skeletonEstoque");
+
+  tbody.innerHTML = "";
+
+  if (skeleton) {
+    tbody.appendChild(skeleton);
+  }
 }
 
 function pad(num, size = 11) {
@@ -379,7 +391,8 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
     document.getElementById("prevPage").disabled = true;
     document.getElementById("nextPage").disabled = false;
 
-    document.querySelector("#tabelaEstoque tbody").innerHTML = "";
+    // document.querySelector("#tabelaEstoque tbody").innerHTML = "";
+    limparTabelaMantendoSkeleton();
 
     carregarEstoque();
   });
@@ -421,7 +434,8 @@ window.addEventListener("usuario-autenticado", () => {
   cursores = [];
 
   const tbody = document.querySelector("#tabelaEstoque tbody");
-  if (tbody) tbody.innerHTML = "";
+  // if (tbody) tbody.innerHTML = "";
+  if (tbody) limparTabelaMantendoSkeleton();
 
   const prev = document.getElementById("prevPage");
   if (prev) prev.disabled = true;
@@ -452,7 +466,8 @@ document.getElementById("prevPage").onclick = () => {
   paginaAtual--;
   document.getElementById("paginaAtual").innerText = paginaAtual;
 
-  document.querySelector("#tabelaEstoque tbody").innerHTML = "";
+  // document.querySelector("#tabelaEstoque tbody").innerHTML = "";
+  limparTabelaMantendoSkeleton();
   carregarEstoque(true);
 
   // desativa se voltar pra primeira
