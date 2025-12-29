@@ -368,4 +368,24 @@ mark {
     height: 110px;
     padding: 12px;
   }
+  
+    .card-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: #1e1e1e;
+  }
+
+  .card-image.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 12px;
+    height: 140px;
+    border-radius: 8px;
+    background: #2a2a2a;
+  }
 }
