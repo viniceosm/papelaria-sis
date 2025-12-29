@@ -369,12 +369,29 @@ mark {
     padding: 12px;
   }
   
-    .card-image {
-    width: 100%;
-    height: 140px;
+  .card-container {
+    display: flex;
+    gap: 12px;
+  }
+  
+  /* Lado esquerdo (imagem) */
+  .card-left {
+    flex: 0 0 90px;
+  }
+  
+  /* Lado direito (infos) */
+  .card-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .card-image {
+    width: 90px;
+    height: 90px;
     object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 8px;
     background: #1e1e1e;
   }
 
@@ -382,10 +399,32 @@ mark {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 11px;
     color: #888;
+  }
+  
+  /* Preço */
+  .card-preco {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  
+  /* Estoque */
+  .card-estoque {
     font-size: 12px;
-    height: 140px;
-    border-radius: 8px;
-    background: #2a2a2a;
+    color: var(--muted);
+  }
+  
+  /* Nome */
+  .card-nome {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+  
+  /* Código */
+  .card-codigo {
+    font-size: 11px;
+    color: var(--muted);
   }
 }
