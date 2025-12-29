@@ -205,10 +205,12 @@ function normalizarDescricao(str) {
 }
 
 function mostrarSkeleton() {
+  if (!document.getElementById("skeletonEstoque")) return;
   document.getElementById("skeletonEstoque").style.display = "table-row";
 }
 
 function esconderSkeleton() {
+  if (!document.getElementById("skeletonEstoque")) return;
   document.getElementById("skeletonEstoque").style.display = "none";
 }
 
