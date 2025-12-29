@@ -23,6 +23,8 @@ let paginaAtual = 1;
 let termoBusca = "";
 let totalRegistrosBusca = 0;
 let timerBusca;
+let domPronto = false;
+let authPronto = false;
 
 let ordenacao = {
   campo: "descricao",
@@ -410,12 +412,29 @@ document.getElementById("busca").addEventListener("input", e => {
 });
 
 window.addEventListener("usuario-autenticado", () => {
+  authPronto = true;
+
   paginaAtual = 1;
   ultimoDoc = null;
   cursores = [];
-  document.querySelector("#tabelaEstoque tbody").innerHTML = "";
-  document.getElementById("prevPage").disabled = true;
-  carregarEstoque();
+
+  const tbody = document.querySelector("#tabelaEstoque tbody");
+  if (tbody) tbody.innerHTML = "";
+
+  const prev = document.getElementById("prevPage");
+  if (prev) prev.disabled = true;
+
+  if (domPronto) {
+    carregarEstoque();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  domPronto = true;
+
+  if (authPronto) {
+    carregarEstoque();
+  }
 });
 
 document.getElementById("nextPage").onclick = () => {
