@@ -36,22 +36,28 @@
         <tr>
           <th><input type="checkbox"></th>
           <th data-sort="cod">Código</th>
-          <th data-sort="descricao">Descrição <span class="sort-indicator"></span></th>
+          <th data-sort="descricao">Descrição</th>
           <th data-sort="categoria">Categoria</th>
           <th data-sort="qtde">Estoque</th>
           <th data-sort="precoVenda">Preço</th>
           <th data-sort="ativo">Ativo</th>
         </tr>
       </thead>
-      <div id="skeletonEstoque" class="skeleton-wrapper">
-        <!-- skeletons gerados via CSS -->
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-      </div>
-      <tbody></tbody>
+
+      <tbody>
+        <!-- Skeleton -->
+        <tr id="skeletonEstoque">
+          <td colspan="7">
+            <div class="skeleton-wrapper">
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 

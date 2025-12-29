@@ -203,13 +203,11 @@ function normalizarDescricao(str) {
 }
 
 function mostrarSkeleton() {
-  document.getElementById("skeletonEstoque").style.display = "block";
-  document.querySelector("#tabelaEstoque tbody").style.display = "none";
+  document.getElementById("skeletonEstoque").style.display = "table-row";
 }
 
 function esconderSkeleton() {
   document.getElementById("skeletonEstoque").style.display = "none";
-  document.querySelector("#tabelaEstoque tbody").style.display = "";
 }
 
 function pad(num, size = 11) {
