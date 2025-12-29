@@ -137,34 +137,40 @@ async function carregarEstoque(paginado = false) {
     const imagemHTML = p.imagem
       ? `<img src="${p.imagem}" class="card-image" loading="lazy" />`
       : `<div class="card-image placeholder">Sem imagem</div>`;
-
+    
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <tr>
-        <td><input type="checkbox"></td>
-        <td>${p.cod ?? "-"}</td>
-      
-        <td class="card-descricao">
+      <td><input type="checkbox"></td>
+      <td>${p.cod ?? "-"}</td>
+    
+      <td class="card-container">
+        <div class="card-left">
           ${imagemHTML}
-      
+        </div>
+    
+        <div class="card-right">
           <div class="card-preco">
             R$ ${Number(p.precoVenda ?? 0).toFixed(2)}
           </div>
-      
+    
           <div class="card-estoque">
             Estoque: ${p.qtde ?? 0}
           </div>
-      
+    
           <div class="card-nome">
             ${descricaoHTML}
           </div>
-        </td>
-      
-        <td>${p.categoria ?? "-"}</td>
-        <td>${p.qtde ?? 0}</td>
-        <td>R$ ${Number(p.precoVenda ?? 0).toFixed(2)}</td>
-        <td>${p.ativo ? "Sim" : "Não"}</td>
-      </tr>
+    
+          <div class="card-codigo">
+            Cód: ${p.cod ?? "-"}
+          </div>
+        </div>
+      </td>
+    
+      <td>${p.categoria ?? "-"}</td>
+      <td>${p.qtde ?? 0}</td>
+      <td>R$ ${Number(p.precoVenda ?? 0).toFixed(2)}</td>
+      <td>${p.ativo ? "Sim" : "Não"}</td>
     `;
 
     fragment.appendChild(tr);
