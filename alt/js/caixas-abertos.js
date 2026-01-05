@@ -8,29 +8,35 @@ import {
 
 async function carregarResumoCaixas() {
   try {
-    // TOTAL
-    const totalQuery = query(collection(db, "caixas"));
-    const totalSnap = await getCountFromServer(totalQuery);
-    const total = totalSnap.data().count;
+    // 🔴 ABERTOS
+    const qAbertos = query(
+      collection(db, "caixas"),
+      where("status", "==", "aberto")
+    );
+    const abertosSnap = await getCountFromServer(qAbertos);
+    const abertos = abertosSnap.data().count;
 
-    // FECHADOS
-    const fechadosQuery = query(
+    // 🟢 FECHADOS
+    const qFechados = query(
       collection(db, "caixas"),
       where("status", "==", "fechado")
     );
-    const fechadosSnap = await getCountFromServer(fechadosQuery);
+    const fechadosSnap = await getCountFromServer(qFechados);
     const fechados = fechadosSnap.data().count;
 
+    // 📦 TOTAL
+    const qTotal = query(collection(db, "caixas"));
+    const totalSnap = await getCountFromServer(qTotal);
+    const total = totalSnap.data().count;
+
     // UI
-    document.getElementById("totalCaixas").innerText = total;
+    document.getElementById("totalAbertos").innerText = abertos;
     document.getElementById("totalFechados").innerText = fechados;
+    document.getElementById("totalCaixas").innerText = total;
 
   } catch (err) {
-    console.error("Erro ao carregar resumo de caixas:", err);
-    document.getElementById("totalCaixas").innerText = "—";
-    document.getElementById("totalFechados").innerText = "—";
+    console.error("Erro ao carregar resumo dos caixas:", err);
   }
 }
 
-// carrega ao abrir
 carregarResumoCaixas();

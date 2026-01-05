@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Resumo de Caixas</title>
+  <title>Caixas</title>
 
   <link rel="stylesheet" href="../css/caixas-abertos.css">
 </head>
@@ -14,27 +14,31 @@
 
     <header class="topbar">
       <button class="back-btn" onclick="history.back()">←</button>
-      <h1>Resumo de caixas</h1>
+      <h1>Caixas</h1>
     </header>
 
     <main class="content">
-
       <div class="cards">
 
-        <!-- TOTAL -->
-        <div class="card" id="cardTotal">
-          <span class="label">Total de caixas</span>
-          <strong class="value" id="totalCaixas">—</strong>
+        <!-- ABERTOS -->
+        <div class="card open">
+          <span class="label">Caixas abertos</span>
+          <strong class="value" id="totalAbertos">—</strong>
         </div>
 
         <!-- FECHADOS -->
-        <div class="card closed" id="cardFechados">
+        <div class="card closed">
           <span class="label">Caixas fechados</span>
           <strong class="value" id="totalFechados">—</strong>
         </div>
 
-      </div>
+        <!-- TOTAL -->
+        <div class="card">
+          <span class="label">Total de caixas</span>
+          <strong class="value" id="totalCaixas">—</strong>
+        </div>
 
+      </div>
     </main>
 
   </div>

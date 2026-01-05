@@ -4,8 +4,9 @@
   --text: #eaeaf0;
   --muted: #9aa0a6;
 
-  --primary: #6366f1;
+  --danger: #ef4444;
   --success: #22c55e;
+  --primary: #6366f1;
 }
 
 * {
@@ -47,7 +48,6 @@ body {
 }
 
 .content {
-  flex: 1;
   padding: 20px;
 }
 
@@ -72,11 +72,17 @@ body {
 
 .card .value {
   display: block;
-  font-size: 42px;
+  font-size: 40px;
   margin-top: 8px;
   color: var(--primary);
 }
 
+/* 🔴 Abertos */
+.card.open .value {
+  color: var(--danger);
+}
+
+/* 🟢 Fechados */
 .card.closed .value {
   color: var(--success);
 }
