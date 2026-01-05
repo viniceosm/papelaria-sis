@@ -6,42 +6,31 @@ import {
   getCountFromServer
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-async function carregarCaixasAbertos() {
-  const card = document.getElementById("cardCaixas");
-  const totalEl = document.getElementById("totalCaixas");
-  const statusEl = document.getElementById("statusTexto");
-
+async function carregarResumoCaixas() {
   try {
-    const q = query(
+    // TOTAL
+    const totalQuery = query(collection(db, "caixas"));
+    const totalSnap = await getCountFromServer(totalQuery);
+    const total = totalSnap.data().count;
+
+    // FECHADOS
+    const fechadosQuery = query(
       collection(db, "caixas"),
-      where("status", "==", "aberto")
+      where("status", "==", "fechado")
     );
+    const fechadosSnap = await getCountFromServer(fechadosQuery);
+    const fechados = fechadosSnap.data().count;
 
-    const snap = await getCountFromServer(q);
-    const total = snap.data().count;
-
-    totalEl.innerText = total;
-
-    // remove estados anteriores
-    card.classList.remove("ok", "warn", "danger");
-
-    if (total === 0) {
-      card.classList.add("ok");
-      statusEl.innerText = "Nenhum caixa aberto";
-    } else if (total === 1) {
-      card.classList.add("warn");
-      statusEl.innerText = "Existe 1 caixa aberto";
-    } else {
-      card.classList.add("danger");
-      statusEl.innerText = "⚠️ Mais de um caixa aberto";
-    }
+    // UI
+    document.getElementById("totalCaixas").innerText = total;
+    document.getElementById("totalFechados").innerText = fechados;
 
   } catch (err) {
-    console.error("Erro ao carregar caixas abertos:", err);
-    totalEl.innerText = "—";
-    statusEl.innerText = "Erro ao carregar dados";
+    console.error("Erro ao carregar resumo de caixas:", err);
+    document.getElementById("totalCaixas").innerText = "—";
+    document.getElementById("totalFechados").innerText = "—";
   }
 }
 
-// carrega ao abrir a página
-carregarCaixasAbertos();
+// carrega ao abrir
+carregarResumoCaixas();

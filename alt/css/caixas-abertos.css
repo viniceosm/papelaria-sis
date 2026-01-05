@@ -4,9 +4,8 @@
   --text: #eaeaf0;
   --muted: #9aa0a6;
 
-  --ok: #22c55e;
-  --warn: #f59e0b;
-  --danger: #ef4444;
+  --primary: #6366f1;
+  --success: #22c55e;
 }
 
 * {
@@ -49,46 +48,35 @@ body {
 
 .content {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 20px;
 }
 
-.card-caixa {
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.card {
   background: var(--card);
   border-radius: 16px;
-  padding: 32px;
-  width: 100%;
-  max-width: 320px;
+  padding: 24px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
 }
 
-.card-caixa .label {
+.card .label {
   font-size: 14px;
   color: var(--muted);
 }
 
-.card-caixa .value {
+.card .value {
   display: block;
-  font-size: 56px;
-  margin: 12px 0;
+  font-size: 42px;
+  margin-top: 8px;
+  color: var(--primary);
 }
 
-.card-caixa .status {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Estados */
-.card-caixa.ok .value {
-  color: var(--ok);
-}
-
-.card-caixa.warn .value {
-  color: var(--warn);
-}
-
-.card-caixa.danger .value {
-  color: var(--danger);
+.card.closed .value {
+  color: var(--success);
 }
