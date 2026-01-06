@@ -77,6 +77,40 @@
 
   <!-- <button id="corrigirDescricaoLower">corrigirDescricaoLower</button> -->
 
+  <div class="modal-backdrop" id="modalFiltro">
+    <div class="modal">
+      <div class="modal-header">
+        <strong>Filtros avançados</strong>
+        <button class="btn ghost" id="fecharFiltro">✕</button>
+      </div>
+  
+      <div class="modal-body">
+  
+        <!-- operador -->
+        <div class="filter-operator">
+          <label>
+            <input type="radio" name="op" value="AND" checked>
+            E (todas as condições)
+          </label>
+          <label>
+            <input type="radio" name="op" value="OR">
+            OU (qualquer condição)
+          </label>
+        </div>
+  
+        <!-- lista dinâmica -->
+        <div id="listaFiltros"></div>
+  
+        <button class="btn ghost" id="addFiltro">+ Adicionar filtro</button>
+      </div>
+  
+      <div class="modal-footer">
+        <button class="btn ghost" id="limparFiltro">Limpar</button>
+        <button class="btn" id="aplicarFiltro">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase + Auth -->
   <script type="module" src="../js/firebase.js"></script>
   <script type="module" src="../js/auth-guard.js"></script>
