@@ -3,108 +3,54 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Estoque (frontend)</title>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background: #f4f4f4; }
-    .topbar { position: sticky; top: 0; background: white; padding: 12px 14px; display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
-    .title { font-weight: 700; }
-    .search { flex: 1; display: flex; gap: 10px; align-items: center; }
-    input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; outline: none; }
-    .btn { border: 0; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
-    .btn.primary { background: #386c6f; color: #fff; }
-    .btn.ghost { background: #fff; border: 1px solid #ddd; }
-    .btn:disabled { opacity: .6; cursor: not-allowed; }
-    .wrap { padding: 14px; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; }
-    th { font-size: 12px; color: #555; background: #fafafa; }
-    .muted { color: #666; font-size: 13px; }
-
-    /* modal */
-    .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; padding: 16px; }
-    .backdrop.open { display: flex; }
-    .modal { width: min(720px, 100%); background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 25px 80px rgba(0,0,0,.25); }
-    .modal-head, .modal-foot { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff; }
-    .modal-head { border-bottom: 1px solid #eee; }
-    .modal-body { padding: 12px 14px; background: #fff; }
-    .rows { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
-    .row { display: grid; grid-template-columns: 1.2fr .8fr 1fr auto; gap: 10px; }
-    select, .row input { padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; outline: none; }
-    .radio { display: flex; gap: 14px; align-items: center; }
-    .chip { display: inline-flex; gap: 8px; align-items: center; padding: 6px 10px; border: 1px solid #ddd; border-radius: 999px; font-size: 13px; }
-    .danger { color: #b00020; }
-    .ok { color: #0a7; }
-    .hint { font-size: 12px; color: #777; margin-top: 6px; }
-  </style>
+  <title>Estoque (frontend simples)</title>
 </head>
 <body>
 
-  <div class="topbar">
-    <div class="title">📦 Estoque</div>
+  <h2>📦 Estoque (frontend)</h2>
 
-    <div class="search">
-      <input id="busca" type="text" placeholder="Buscar por descrição..." autocomplete="off" />
-      <button class="btn ghost" id="btnFiltros">Filtros</button>
-    </div>
-
-    <span class="chip" id="statusFiltro">Sem filtros</span>
+  <div>
+    <label>Busca por descrição:</label><br />
+    <input id="busca" type="text" placeholder="Digite para buscar..." />
   </div>
 
-  <div class="wrap">
-    <div class="muted" id="info"></div>
+  <hr />
 
-    <table>
-      <thead>
-        <tr>
-          <th>Cód</th>
-          <th>Descrição</th>
-          <th>Categoria</th>
-          <th>Estoque</th>
-          <th>Preço</th>
-          <th>Ativo</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+  <div>
+    <label>Operador entre filtros:</label><br />
+    <label><input type="radio" name="op" value="AND" checked> AND</label>
+    <label><input type="radio" name="op" value="OR"> OR</label>
   </div>
 
-  <!-- Modal -->
-  <div class="backdrop" id="modal">
-    <div class="modal">
-      <div class="modal-head">
-        <strong>Filtros avançados</strong>
-        <button class="btn ghost" id="btnFechar">✕</button>
-      </div>
+  <hr />
 
-      <div class="modal-body">
-        <div class="radio">
-          <label class="chip">
-            <input type="radio" name="op" value="AND" checked />
-            <span>E (todas)</span>
-          </label>
-          <label class="chip">
-            <input type="radio" name="op" value="OR" />
-            <span>OU (qualquer)</span>
-          </label>
-        </div>
+  <h3>Filtros</h3>
 
-        <div class="rows" id="rows"></div>
+  <div id="filtros"></div>
 
-        <button class="btn ghost" id="btnAdd">+ Adicionar filtro</button>
-        <div class="hint">Dica: estoque e preço aceitam &gt; e &lt;. Categoria aceita "contém". Ativo aceita Sim/Não.</div>
-      </div>
+  <button id="addFiltro">+ Adicionar filtro</button>
+  <button id="limpar">Limpar filtros</button>
 
-      <div class="modal-foot">
-        <button class="btn ghost" id="btnLimpar">Limpar</button>
-        <button class="btn primary" id="btnAplicar">Aplicar</button>
-      </div>
-    </div>
-  </div>
+  <hr />
+
+  <div id="info"></div>
+
+  <table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Cód</th>
+        <th>Descrição</th>
+        <th>Categoria</th>
+        <th>Qtde</th>
+        <th>Preço</th>
+        <th>Ativo</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
 
   <script>
-    // =========================
-    // 1) Base fake (troque pelos seus dados)
-    // =========================
+    // ====== dados fake (troque pelos seus dados do Firestore depois) ======
     const produtos = [
       { cod: "001", descricao: "Caneta azul", categoria: "Escrita", qtde: 12, precoVenda: 3.5, ativo: true },
       { cod: "002", descricao: "Caneta preta", categoria: "Escrita", qtde: 2,  precoVenda: 3.5, ativo: true },
@@ -114,16 +60,11 @@
       { cod: "006", descricao: "Estojo escolar", categoria: "Acessórios", qtde: 8, precoVenda: 29.9, ativo: true },
     ];
 
-    // =========================
-    // 2) Estado
-    // =========================
+    // ====== estado ======
     let termoBusca = "";
-    let operadorGlobal = "AND";
-    let filtrosAtivos = [];
+    let operadorGlobal = "AND"; // AND | OR
 
-    // =========================
-    // 3) Helpers
-    // =========================
+    // ====== helpers ======
     function normalizar(str) {
       return String(str ?? "")
         .toLowerCase()
@@ -132,7 +73,7 @@
         .replace(/[\u0300-\u036f]/g, "");
     }
 
-    function normalizarValor(campo, valorStr) {
+    function parseValor(campo, valorStr) {
       const v = String(valorStr ?? "").trim();
 
       if (campo === "qtde" || campo === "precoVenda") return Number(v);
@@ -143,19 +84,15 @@
       return v;
     }
 
-    function aplicaCondicao(prod, f) {
-      const campo = f.campo;
-      const op = f.operador;
-      const valor = f.valor;
-
+    function aplicaCondicao(prod, campo, operador, valor) {
       const valProd = prod[campo];
 
       if (campo === "descricao" || campo === "categoria") {
         const a = normalizar(valProd);
         const b = normalizar(valor);
 
-        if (op === "contains") return a.includes(b);
-        if (op === "==") return a === b;
+        if (operador === "contains") return a.includes(b);
+        if (operador === "==") return a === b;
         return false;
       }
 
@@ -164,33 +101,54 @@
         const b = Number(valor);
         if (Number.isNaN(b)) return false;
 
-        if (op === "==") return a === b;
-        if (op === ">")  return a > b;
-        if (op === "<")  return a < b;
+        if (operador === "==") return a === b;
+        if (operador === ">")  return a > b;
+        if (operador === "<")  return a < b;
         return false;
       }
 
       if (campo === "ativo") {
         const a = Boolean(valProd);
         const b = Boolean(valor);
-        if (op === "==") return a === b;
+        if (operador === "==") return a === b;
         return false;
       }
 
       return false;
     }
 
-    function filtrarFrontend() {
+    function obterFiltrosDaTela() {
+      const rows = [...document.querySelectorAll(".filtro-row")];
+
+      const filtros = rows.map(r => {
+        const campo = r.querySelector(".campo").value;
+        const operador = r.querySelector(".operador").value;
+        const valorRaw = r.querySelector(".valor").value;
+
+        return { campo, operador, valor: parseValor(campo, valorRaw), valorRaw };
+      });
+
+      // remove vazios
+      return filtros.filter(f => {
+        if (!String(f.valorRaw).trim()) return false;
+        if ((f.campo === "qtde" || f.campo === "precoVenda") && !Number.isFinite(f.valor)) return false;
+        return true;
+      });
+    }
+
+    function filtrar() {
       const t = normalizar(termoBusca);
+      const filtros = obterFiltrosDaTela();
 
       return produtos.filter(p => {
-        // Busca por descrição (input principal)
+        // busca simples por descrição
         const passaTexto = !t || normalizar(p.descricao).includes(t);
 
-        // Filtros do modal
-        if (!filtrosAtivos.length) return passaTexto;
+        if (!filtros.length) return passaTexto;
 
-        const resultados = filtrosAtivos.map(f => aplicaCondicao(p, f));
+        const resultados = filtros.map(f =>
+          aplicaCondicao(p, f.campo, f.operador, f.valor)
+        );
 
         const passaFiltros =
           operadorGlobal === "AND"
@@ -201,9 +159,6 @@
       });
     }
 
-    // =========================
-    // 4) Render
-    // =========================
     function renderTabela(lista) {
       const tbody = document.getElementById("tbody");
       tbody.innerHTML = "";
@@ -215,7 +170,7 @@
           <td>${p.descricao}</td>
           <td>${p.categoria}</td>
           <td>${p.qtde}</td>
-          <td>R$ ${Number(p.precoVenda).toFixed(2)}</td>
+          <td>${Number(p.precoVenda).toFixed(2)}</td>
           <td>${p.ativo ? "Sim" : "Não"}</td>
         `;
         tbody.appendChild(tr);
@@ -225,41 +180,28 @@
         `Mostrando ${lista.length} de ${produtos.length} produto(s).`;
     }
 
-    function atualizarStatusFiltro() {
-      const el = document.getElementById("statusFiltro");
-      if (!filtrosAtivos.length) {
-        el.textContent = "Sem filtros";
-        el.classList.remove("ok");
-        return;
-      }
-      el.textContent = `${operadorGlobal} • ${filtrosAtivos.length} filtro(s)`;
-      el.classList.add("ok");
+    function atualizar() {
+      renderTabela(filtrar());
     }
 
-    function atualizarTudo() {
-      atualizarStatusFiltro();
-      renderTabela(filtrarFrontend());
-    }
-
-    // =========================
-    // 5) Modal: criação de rows
-    // =========================
+    // ====== UI de filtro ======
     function criarRowFiltro() {
       const div = document.createElement("div");
-      div.className = "row";
+      div.className = "filtro-row";
       div.innerHTML = `
         <select class="campo">
           <option value="categoria">Categoria</option>
           <option value="qtde">Estoque</option>
           <option value="precoVenda">Preço</option>
           <option value="ativo">Ativo</option>
+          <option value="descricao">Descrição</option>
         </select>
 
         <select class="operador"></select>
 
         <input class="valor" placeholder="Valor" />
 
-        <button class="btn ghost remover">✕</button>
+        <button type="button" class="remover">X</button>
       `;
 
       const selCampo = div.querySelector(".campo");
@@ -269,97 +211,67 @@
         const c = selCampo.value;
         selOp.innerHTML = "";
 
-        if (c === "categoria") {
+        if (c === "categoria" || c === "descricao") {
           selOp.innerHTML = `
             <option value="contains">contém</option>
             <option value="==">igual</option>
           `;
         } else if (c === "ativo") {
           selOp.innerHTML = `<option value="==">igual</option>`;
+          div.querySelector(".valor").placeholder = 'Digite: "sim" ou "nao"';
         } else {
           selOp.innerHTML = `
             <option value="==">=</option>
             <option value=">">></option>
             <option value="<"><</option>
           `;
+          div.querySelector(".valor").placeholder = "Número";
         }
       }
 
       popularOperadores();
-      selCampo.addEventListener("change", popularOperadores);
+      selCampo.addEventListener("change", () => {
+        popularOperadores();
+        atualizar();
+      });
 
-      div.querySelector(".remover").onclick = () => div.remove();
+      div.querySelector(".operador").addEventListener("change", atualizar);
+      div.querySelector(".valor").addEventListener("input", atualizar);
+
+      div.querySelector(".remover").onclick = () => {
+        div.remove();
+        atualizar();
+      };
 
       return div;
     }
 
-    function obterFiltrosDoModal() {
-      const rows = [...document.querySelectorAll("#rows .row")];
+    // ====== eventos ======
+    document.getElementById("busca").addEventListener("input", (e) => {
+      termoBusca = e.target.value;
+      atualizar();
+    });
 
-      return rows.map(r => {
-        const campo = r.querySelector(".campo").value;
-        const operador = r.querySelector(".operador").value;
-        const valorRaw = r.querySelector(".valor").value;
-
-        return {
-          campo,
-          operador,
-          valor: normalizarValor(campo, valorRaw)
-        };
-      }).filter(f => {
-        // remove filtros sem valor (evita travar)
-        if (f.campo === "qtde" || f.campo === "precoVenda") {
-          return Number.isFinite(f.valor);
-        }
-        if (f.campo === "ativo") {
-          // permite vazio? não. exige algo digitado
-          return String(f.valor).length > 0;
-        }
-        return String(f.valor).trim().length > 0;
+    document.querySelectorAll('input[name="op"]').forEach(r => {
+      r.addEventListener("change", () => {
+        operadorGlobal = document.querySelector('input[name="op"]:checked').value;
+        atualizar();
       });
-    }
+    });
 
-    // =========================
-  // 6) Eventos (continuação)
-  // =========================
+    document.getElementById("addFiltro").onclick = () => {
+      document.getElementById("filtros").appendChild(criarRowFiltro());
+      atualizar();
+    };
 
-  document.getElementById("btnLimpar").onclick = () => {
-    filtrosAtivos = [];
-    operadorGlobal = "AND";
+    document.getElementById("limpar").onclick = () => {
+      document.getElementById("filtros").innerHTML = "";
+      atualizar();
+    };
 
-    // reseta radios
-    document.querySelector('input[name="op"][value="AND"]').checked = true;
-
-    // limpa rows
-    rows.innerHTML = "";
-    rows.appendChild(criarRowFiltro());
-
-    atualizarTudo();
-  };
-
-  document.getElementById("btnAplicar").onclick = () => {
-    const btn = document.getElementById("btnAplicar");
-    const textoOriginal = btn.textContent;
-
-    btn.disabled = true;
-    btn.textContent = "Aplicando...";
-
-    try {
-      filtrosAtivos = obterFiltrosDoModal();
-
-      operadorGlobal =
-        document.querySelector('input[name="op"]:checked')?.value || "AND";
-
-      atualizarTudo();
-      modal.classList.remove("open");
-    } finally {
-      btn.textContent = textoOriginal;
-      btn.disabled = false;
-    }
-  };
-
-  // =========================
-  // 7) Inicialização
-  // =========================
-  atualizarTudo();
-</script>
+    // ====== start ======
+    document.getElementById("filtros").appendChild(criarRowFiltro());
+    atualizar();
+  </script>
+</body>
+</html>
