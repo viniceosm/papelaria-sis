@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Taxa</title>
+
+  <link rel="stylesheet" href="../css/calculadora-taxa.css" />
+</head>
+<body>
+
+  <div class="calc-container">
+
+    <h1>💳 Calculadora de Taxa</h1>
+
+    <div class="display">
+      <input
+        type="text"
+        id="valorCompra"
+        placeholder="0,00"
+        readonly
+      />
+    </div>
+
+    <div class="parcelas">
+      <label>Parcelas</label>
+      <select id="parcelas">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="3">3x</option>
+        <option value="4">4x</option>
+        <option value="5">5x</option>
+        <option value="6">6x</option>
+        <option value="7">7x</option>
+        <option value="8">8x</option>
+        <option value="9">9x</option>
+        <option value="10">10x</option>
+        <option value="11">11x</option>
+        <option value="12">12x</option>
+      </select>
+    </div>
+
+    <div class="resultado">
+      <div>
+        <span>Taxa</span>
+        <strong id="valorTaxa">R$ 0,00</strong>
+      </div>
+
+      <div>
+        <span>Total com taxa</span>
+        <strong id="valorFinal">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <!-- Teclado estilo calculadora -->
+    <div class="teclado">
+      <button data-num="7">7</button>
+      <button data-num="8">8</button>
+      <button data-num="9">9</button>
+
+      <button data-num="4">4</button>
+      <button data-num="5">5</button>
+      <button data-num="6">6</button>
+
+      <button data-num="1">1</button>
+      <button data-num="2">2</button>
+      <button data-num="3">3</button>
+
+      <button data-num="0" class="zero">0</button>
+      <button id="clear">C</button>
+    </div>
+
+  </div>
+
+  <script src="../js/calculadora-taxa.js"></script>
+</body>
+</html>
