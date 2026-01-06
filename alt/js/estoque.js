@@ -53,6 +53,17 @@ const MAPA_ORDENACAO = {
   ativo_desc: "busca_ativo_desc"
 };
 
+const MAPA_CAMPO_WHERE = {
+  categoria: "categoria",
+  ativo: "ativo",
+  qtde: "qtde",
+  precoVenda: "precoVenda"
+};
+
+const MAPA_CAMPO_ORDERBY = {
+  qtde: "qtde"
+};
+
 async function carregarEstoque(paginado = false) {
   if (carregando) return;
   carregando = true;
@@ -111,30 +122,60 @@ async function carregarEstoque(paginado = false) {
   /* =========================
      2️⃣ WHERE – FILTROS AND
      ========================= */
+  let campoRange = null;
+
   if (operadorGlobal === "AND" && filtrosAtivos.length) {
-    filtrosAtivos.forEach(f => {
-      constraints.push(where(f.campo, f.operador, f.valor));
-    });
+    for (const f of filtrosAtivos) {
+      // valida campo
+      if (!MAPA_CAMPO_WHERE[f.campo]) {
+        console.warn("Campo ignorado:", f.campo);
+        continue;
+      }
+  
+      // bloqueia range em precoVenda por enquanto
+      if (
+        (f.operador === ">" || f.operador === "<") &&
+        f.campo === "precoVenda"
+      ) {
+        alert("Filtro por preço com > ou < ainda não suportado.");
+        continue;
+      }
+  
+      if (f.operador === ">" || f.operador === "<") {
+        if (campoRange && campoRange !== f.campo) {
+          alert("O Firestore só permite filtro de intervalo em um único campo.");
+          continue;
+        }
+        campoRange = f.campo;
+      }
+  
+      constraints.push(
+        where(MAPA_CAMPO_WHERE[f.campo], f.operador, f.valor)
+      );
+    }
   }
   
   /* =========================
-     3️⃣ ORDER BY
-     ========================= */
-  // 🔥 se existir filtro com < ou >, ele manda no orderBy
-  const filtroRange = filtrosAtivos.find(f =>
-    f.operador === ">" || f.operador === "<"
-  );
+   3️⃣ ORDER BY (CORRETO)
+   ========================= */
+  if (campoRange) {
+    const campoOrder = MAPA_CAMPO_ORDERBY[campoRange];
   
-  if (filtroRange) {
-    constraints.push(orderBy(filtroRange.campo, "asc"));
-  } else if (termoNormalizado.length > 0) {
+    if (!campoOrder) {
+      console.error("Campo de range sem índice:", campoRange);
+    } else {
+      constraints.push(orderBy(campoOrder, "asc"));
+    }
+  }
+  else if (termoNormalizado.length > 0) {
     constraints.push(orderBy(
       campoNormalizado === "descricao"
         ? "descricao_lower"
         : campoOrdenacao,
       "asc"
     ));
-  } else {
+  }
+  else {
     constraints.push(orderBy(campoOrdenacao, ordenacao.direcao));
   }
   
