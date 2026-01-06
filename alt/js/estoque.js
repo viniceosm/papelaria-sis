@@ -609,17 +609,31 @@ btnAddFiltro.addEventListener("click", () => {
   listaFiltros.appendChild(criarFiltroRow());
 });
 
-document.getElementById("btnAplicarFiltro").onclick = () => {
-  filtrosAtivos = obterFiltrosDoModal();
-  operadorGlobal = document.querySelector(
-    'input[name="operador-logico"]:checked'
-  ).value; // "AND" ou "OR"
+document.getElementById("btnAplicarFiltro").onclick = async () => {
+  const btn = document.getElementById("btnAplicarFiltro");
 
-  paginaAtual = 1;
-  cursores = [];
-  ultimoDoc = null;
-  forcarRede = true;
+  // UI feedback
+  btn.disabled = true;
+  const textoOriginal = btn.innerText;
+  btn.innerText = "Aplicando...";
 
-  fecharModalFiltro();
-  carregarEstoque();
+  try {
+    filtrosAtivos = obterFiltrosDoModal();
+    operadorGlobal = document.querySelector(
+      'input[name="operador-logico"]:checked'
+    )?.value;
+
+    paginaAtual = 1;
+    cursores = [];
+    ultimoDoc = null;
+    forcarRede = true;
+
+    fecharModalFiltro();
+
+    await carregarEstoque(); // ⬅️ importante aguardar
+  } finally {
+    // restaura botão
+    btn.innerText = textoOriginal;
+    btn.disabled = false;
+  }
 };
