@@ -428,3 +428,54 @@ mark {
     color: var(--muted);
   }
 }
+
+/* =========================================================
+   🌞 MODO CLARO
+   ========================================================= */
+
+body[data-theme="light"] {
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --header: #f0f1f4;
+  --row: #ffffff;
+  --row-hover: #f2f3f6;
+  --border: rgba(0,0,0,.08);
+  --text: #1c1c1f;
+  --muted: #5c5f6b;
+  --accent: #5b6cff;
+
+  background: #f4f5f7;
+}
+
+/* inputs */
+body[data-theme="light"] .search-wrapper input {
+  background: #fff;
+  border-color: rgba(0,0,0,.15);
+  color: #1c1c1f;
+}
+
+body[data-theme="light"] .search-wrapper input::placeholder {
+  color: #8a8d98;
+}
+
+/* tabela */
+body[data-theme="light"] .table-wrapper {
+  background: #fff;
+  backdrop-filter: none;
+}
+
+/* skeleton */
+body[data-theme="light"] .skeleton-card {
+  background: linear-gradient(
+    110deg,
+    rgba(0,0,0,0.05) 8%,
+    rgba(0,0,0,0.10) 18%,
+    rgba(0,0,0,0.05) 33%
+  );
+}
+
+/* card imagem placeholder */
+body[data-theme="light"] .card-image.placeholder {
+  background: #e5e6eb;
+  color: #777;
+}
