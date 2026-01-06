@@ -501,3 +501,11 @@ document.getElementById("prevPage").onclick = () => {
   // desativa se voltar pra primeira
   document.getElementById("prevPage").disabled = paginaAtual === 1;
 };
+
+document.getElementById("btnFiltro").onclick = () => {
+  document.getElementById("modalFiltro").classList.add("open");
+}
+
+document.getElementById("fecharFiltro").onclick = () => {
+  document.getElementById("modalFiltro").classList.remove("open");
+}
