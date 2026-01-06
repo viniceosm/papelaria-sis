@@ -87,14 +87,24 @@
       <div class="modal-body">
   
         <!-- operador -->
-        <div class="filter-operator">
-          <label>
-            <input type="radio" name="op" value="AND" checked>
-            E (todas as condições)
+        <div class="operador-logico">
+          <label class="radio">
+            <input
+              type="radio"
+              name="operador-logico"
+              value="AND"
+              checked
+            />
+            <span>E (todas as condições)</span>
           </label>
-          <label>
-            <input type="radio" name="op" value="OR">
-            OU (qualquer condição)
+        
+          <label class="radio">
+            <input
+              type="radio"
+              name="operador-logico"
+              value="OR"
+            />
+            <span>OU (qualquer condição)</span>
           </label>
         </div>
   
