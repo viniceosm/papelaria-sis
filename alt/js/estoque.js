@@ -518,6 +518,33 @@ document.addEventListener("DOMContentLoaded", () => {
   if (authPronto) {
     carregarEstoque();
   }
+  
+  document.getElementById("btnAplicarFiltro").onclick = async () => {
+    const btn = document.getElementById("btnAplicarFiltro");
+  
+    btn.disabled = true;
+    const textoOriginal = btn.innerText;
+    btn.innerText = "Aplicando...";
+  
+    try {
+      filtrosAtivos = obterFiltrosDoModal();
+      operadorGlobal = document.querySelector(
+        'input[name="operador-logico"]:checked'
+      )?.value;
+  
+      paginaAtual = 1;
+      cursores = [];
+      ultimoDoc = null;
+      forcarRede = true;
+  
+      document.getElementById("modalFiltro").classList.remove("open");
+  
+      await carregarEstoque();
+    } finally {
+      btn.innerText = textoOriginal;
+      btn.disabled = false;
+    }
+  };
 });
 
 document.getElementById("nextPage").onclick = () => {
@@ -608,30 +635,3 @@ function normalizarValor(valor, campo) {
 btnAddFiltro.addEventListener("click", () => {
   listaFiltros.appendChild(criarFiltroRow());
 });
-
-document.getElementById("btnAplicarFiltro").onclick = async () => {
-  const btn = document.getElementById("btnAplicarFiltro");
-
-  btn.disabled = true;
-  const textoOriginal = btn.innerText;
-  btn.innerText = "Aplicando...";
-
-  try {
-    filtrosAtivos = obterFiltrosDoModal();
-    operadorGlobal = document.querySelector(
-      'input[name="operador-logico"]:checked'
-    )?.value;
-
-    paginaAtual = 1;
-    cursores = [];
-    ultimoDoc = null;
-    forcarRede = true;
-
-    document.getElementById("modalFiltro").classList.remove("open");
-
-    await carregarEstoque();
-  } finally {
-    btn.innerText = textoOriginal;
-    btn.disabled = false;
-  }
-};
