@@ -288,10 +288,38 @@ tbody td {
   gap: 12px;
 }
 
-.filter-operator {
+.operador-logico {
   display: flex;
-  gap: 16px;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
   font-size: 13px;
+  user-select: none;
+  transition: all .15s ease;
+}
+
+.radio input {
+  display: none;
+}
+
+/* estado ativo */
+.radio input:checked + span {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* opcional: fundo quando ativo */
+.radio input:checked + span::before {
+  content: "✓ ";
 }
 
 /* =========================================================
