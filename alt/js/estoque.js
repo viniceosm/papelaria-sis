@@ -502,10 +502,47 @@ document.getElementById("prevPage").onclick = () => {
   document.getElementById("prevPage").disabled = paginaAtual === 1;
 };
 
+const listaFiltros = document.getElementById("listaFiltros");
+const btnAddFiltro = document.getElementById("addFiltro");
+
 document.getElementById("btnFiltro").onclick = () => {
+  listaFiltros.innerHTML = "";
+  listaFiltros.appendChild(criarFiltroRow());
   document.getElementById("modalFiltro").classList.add("open");
 }
 
 document.getElementById("fecharFiltro").onclick = () => {
   document.getElementById("modalFiltro").classList.remove("open");
 }
+
+function criarFiltroRow() {
+  const div = document.createElement("div");
+  div.className = "filter-row";
+
+  div.innerHTML = `
+    <select class="campo">
+      <option value="categoria">Categoria</option>
+      <option value="qtde">Estoque</option>
+      <option value="ativo">Ativo</option>
+      <option value="precoVenda">Preço</option>
+    </select>
+
+    <select class="operador">
+      <option value="==">=</option>
+      <option value=">">></option>
+      <option value="<"><</option>
+    </select>
+
+    <input class="valor" placeholder="Valor" />
+
+    <button class="btn ghost remover">✕</button>
+  `;
+
+  div.querySelector(".remover").onclick = () => div.remove();
+
+  return div;
+}
+
+btnAddFiltro.addEventListener("click", () => {
+  listaFiltros.appendChild(criarFiltroRow());
+});
