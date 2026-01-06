@@ -1,0 +1,103 @@
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: #f4f4f4;
+}
+
+.calc-container {
+  max-width: 420px;
+  margin: auto;
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.display input {
+  width: 100%;
+  font-size: 32px;
+  text-align: right;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+}
+
+.parcelas {
+  margin-top: 12px;
+}
+
+.parcelas label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.parcelas select {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.resultado {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resultado div {
+  flex: 1;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.resultado span {
+  display: block;
+  font-size: 13px;
+  color: #666;
+}
+
+.resultado strong {
+  font-size: 18px;
+}
+
+.teclado {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.teclado button {
+  padding: 18px;
+  font-size: 20px;
+  border-radius: 12px;
+  border: none;
+  background: #eaeaea;
+  cursor: pointer;
+}
+
+.teclado button:active {
+  background: #d0d0d0;
+}
+
+.teclado .zero {
+  grid-column: span 2;
+}
+
+#clear {
+  background: #ff6b6b;
+  color: #fff;
+}
