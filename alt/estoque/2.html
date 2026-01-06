@@ -94,18 +94,15 @@
       el.style.color = "#0a7";
       el.innerText = `✅ ${qtde} produto(s) carregado(s)`;
     }
-    
+
     async function carregarProdutosFirestore() {
       try {
         setStatusCarregando();
     
-        const snap = await window._getDocs(
-          window._collection(window._db, "produtos")
-        );
+        const snap = await getDocs(collection(db, "produtos"));
     
         produtos = snap.docs.map(d => {
           const p = d.data();
-    
           return {
             cod: p.cod ?? "",
             descricao: p.descricao ?? "",
@@ -117,11 +114,11 @@
         });
     
         setStatusOk(produtos.length);
-        atualizar(); // 🔥 reaproveita toda a lógica de filtro frontend
+        atualizar(); // usa os filtros frontend
     
       } catch (err) {
         console.error(err);
-        setStatusErro(err.message || "Falha desconhecida");
+        setStatusErro(err.message || "Erro desconhecido");
       }
     }
     
