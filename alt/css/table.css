@@ -1,17 +1,33 @@
 /* =========================================================
-   🎨 VARIÁVEIS
+   🎨 TOKENS DE TEMA (BASE)
    ========================================================= */
 
 :root {
+  /* superfícies */
   --bg: #0b0b0f;
   --panel: #111118;
-  --header: #16161f;
+  --panel-soft: #16161f;
   --row: #0f0f16;
   --row-hover: #1a1a26;
+
+  /* bordas */
   --border: rgba(255,255,255,.06);
+
+  /* texto */
   --text: #eaeaf0;
   --muted: #a1a1b3;
+
+  /* destaque */
   --accent: #7c7cff;
+
+  /* inputs */
+  --input-bg: rgba(17,17,24,.75);
+  --input-border: rgba(255,255,255,.15);
+  --input-placeholder: rgba(255,255,255,.5);
+
+  /* skeleton */
+  --skeleton-1: rgba(255,255,255,0.06);
+  --skeleton-2: rgba(255,255,255,0.12);
 }
 
 /* =========================================================
@@ -29,14 +45,13 @@ html, body {
 body {
   margin: 0;
   padding: 24px;
-  background: radial-gradient(circle at top, #151520, #0b0b0f);
-  color: var(--text);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont;
+  color: var(--text);
+  background: radial-gradient(circle at top, var(--panel-soft), var(--bg));
 }
 
-/* iOS / Safari */
+/* iOS reset */
 button, input, select, textarea {
-  -webkit-appearance: none;
   appearance: none;
   font: inherit;
   color: inherit;
@@ -58,13 +73,11 @@ button, input, select, textarea {
   font-size: 20px;
   font-weight: 600;
   display: flex;
-  align-items: center;
   gap: 8px;
 }
 
 .actions {
   display: flex;
-  align-items: center;
   gap: 8px;
 }
 
@@ -79,27 +92,26 @@ button, input, select, textarea {
 }
 
 .search-wrapper input {
-  background: rgba(17,17,24,.75);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
-  padding: 6px 10px;
-  color: #fff;
   min-width: 220px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
 }
 
 .search-wrapper input::placeholder {
-  color: rgba(255,255,255,0.5);
+  color: var(--input-placeholder);
 }
 
 .search-wrapper input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124,124,255,.15);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 .search-count {
   font-size: 12px;
-  color: rgba(255,255,255,0.6);
+  color: var(--muted);
 }
 
 /* =========================================================
@@ -110,20 +122,16 @@ button, input, select, textarea {
   padding: 8px 12px;
   border-radius: 10px;
   font-size: 13px;
-  cursor: pointer;
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
-  transition: all .15s ease;
+  cursor: pointer;
+  transition: .15s;
 }
 
 .btn:hover {
   color: var(--text);
   border-color: var(--accent);
-}
-
-.btn:active {
-  transform: translateY(1px);
 }
 
 .btn:disabled {
@@ -136,11 +144,10 @@ button, input, select, textarea {
    ========================================================= */
 
 .table-wrapper {
-  background: rgba(17,17,24,.85);
+  background: var(--panel);
   border-radius: 14px;
-  overflow: hidden;
   border: 1px solid var(--border);
-  backdrop-filter: blur(10px);
+  overflow: hidden;
 }
 
 .advanced-table {
@@ -150,13 +157,10 @@ button, input, select, textarea {
 }
 
 thead {
-  background: linear-gradient(to bottom, #1a1a25, #14141d);
+  background: var(--panel-soft);
 }
 
 thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
   padding: 14px;
   text-align: left;
   font-weight: 500;
@@ -181,12 +185,12 @@ th.desc::after { content: " ▼"; }
    ========================================================= */
 
 tbody tr {
-  background: rgba(15,15,22,.85);
+  background: var(--row);
   border-bottom: 1px solid var(--border);
 }
 
 tbody tr:hover {
-  background: rgba(26,26,38,.9);
+  background: var(--row-hover);
 }
 
 tbody td {
@@ -195,50 +199,27 @@ tbody td {
 }
 
 /* =========================================================
-   ☑️ CHECKBOX
-   ========================================================= */
-
-input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--accent);
-}
-
-/* =========================================================
-   🔻 FOOTER / PAGINAÇÃO
+   🔻 FOOTER
    ========================================================= */
 
 .table-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
   padding: 12px 16px;
   font-size: 12px;
   color: var(--muted);
-  background: linear-gradient(to bottom, rgba(22,22,31,.95), rgba(17,17,24,.95));
+  background: var(--panel);
   border-top: 1px solid var(--border);
 }
 
 .pagination {
   display: flex;
-  align-items: center;
   gap: 8px;
 }
 
 /* =========================================================
-   ✨ HIGHLIGHT BUSCA
-   ========================================================= */
-
-mark {
-  background: rgba(255, 200, 0, 0.35);
-  color: inherit;
-  padding: 0 2px;
-  border-radius: 3px;
-}
-
-/* =========================================================
-   ⏳ SKELETON LOADING
+   ⏳ SKELETON
    ========================================================= */
 
 .skeleton-wrapper {
@@ -246,66 +227,35 @@ mark {
 }
 
 .skeleton-card {
+  height: 84px;
+  border-radius: 12px;
+  margin-bottom: 10px;
   background: linear-gradient(
     110deg,
-    rgba(255,255,255,0.06) 8%,
-    rgba(255,255,255,0.12) 18%,
-    rgba(255,255,255,0.06) 33%
+    var(--skeleton-1) 8%,
+    var(--skeleton-2) 18%,
+    var(--skeleton-1) 33%
   );
   background-size: 200% 100%;
-  animation: skeleton-loading 1.4s ease infinite;
-
-  border-radius: 12px;
-  height: 84px;
-  margin-bottom: 10px;
+  animation: skeleton 1.4s infinite;
 }
 
-/* animação */
-@keyframes skeleton-loading {
-  to {
-    background-position-x: -200%;
-  }
+@keyframes skeleton {
+  to { background-position-x: -200%; }
 }
 
 /* =========================================================
-   📱 RESPONSIVO (MOBILE)
+   📱 MOBILE / CARD
    ========================================================= */
 
 @media (max-width: 768px) {
 
-  body {
-    padding: 12px;
-  }
+  body { padding: 12px; }
 
-  /* Topbar vira coluna */
   .topbar {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
   }
-
-  .actions {
-    justify-content: space-between;
-  }
-
-  .search-wrapper input {
-    min-width: 100%;
-  }
-
-  /* Footer empilhado */
-  .table-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .pagination {
-    justify-content: center;
-  }
-
-  /* ===========================
-     📱 TABELA EM FORMATO CARD
-     =========================== */
 
   .advanced-table thead {
     display: none;
@@ -318,81 +268,27 @@ mark {
     padding: 12px;
   }
 
-  .advanced-table tbody td {
-    border: none;
-    padding: 2px 0;
-    white-space: normal;
-  }
-
-  /* Checkbox (opcional esconder) */
-  .advanced-table tbody td:nth-child(1) {
-    display: none;
-  }
-
-  /* 💰 PREÇO */
-  .advanced-table tbody td:nth-child(6) {
-    order: 1;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--accent);
-  }
-
-  /* 📦 ESTOQUE */
-  .advanced-table tbody td:nth-child(5) {
-    order: 2;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  /* 📝 DESCRIÇÃO */
-  .advanced-table tbody td:nth-child(3) {
-    order: 3;
-    font-size: 14px;
-    line-height: 1.3;
-  }
-
-  /* 🏷️ CÓDIGO */
-  .advanced-table tbody td:nth-child(2) {
-    order: 4;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  /* Esconde Categoria e Ativo */
-  .advanced-table tbody td:nth-child(4),
-  .advanced-table tbody td:nth-child(7) {
-    display: none;
-  }
-  
-  .skeleton-card {
-    height: 110px;
-    padding: 12px;
-  }
-  
   .card-container {
     display: flex;
     gap: 12px;
   }
-  
-  /* Lado esquerdo (imagem) */
+
   .card-left {
     flex: 0 0 90px;
   }
-  
-  /* Lado direito (infos) */
+
   .card-right {
-    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .card-image {
     width: 90px;
     height: 90px;
-    object-fit: cover;
     border-radius: 8px;
-    background: #1e1e1e;
+    object-fit: cover;
+    background: var(--panel-soft);
   }
 
   .card-image.placeholder {
@@ -400,113 +296,44 @@ mark {
     align-items: center;
     justify-content: center;
     font-size: 11px;
-    color: #888;
+    color: var(--muted);
   }
-  
-  /* Preço */
+
   .card-preco {
     font-size: 15px;
     font-weight: 600;
     color: var(--accent);
   }
-  
-  /* Estoque */
-  .card-estoque {
-    font-size: 12px;
-    color: var(--muted);
-  }
-  
-  /* Nome */
-  .card-nome {
-    font-size: 14px;
-    line-height: 1.3;
-  }
-  
-  /* Código */
+
+  .card-estoque,
   .card-codigo {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--muted);
   }
 }
 
 /* =========================================================
-   🌞 MODO CLARO
+   🌞 TEMA CLARO
    ========================================================= */
 
 body[data-theme="light"] {
   --bg: #f4f5f7;
   --panel: #ffffff;
-  --header: #f0f1f4;
+  --panel-soft: #f0f1f4;
   --row: #ffffff;
   --row-hover: #f2f3f6;
   --border: rgba(0,0,0,.08);
+
   --text: #1c1c1f;
-  --muted: #5c5f6b;
+  --muted: #6b6f7c;
   --accent: #5b6cff;
 
-  background: #f4f5f7;
-}
+  --input-bg: #ffffff;
+  --input-border: rgba(0,0,0,.15);
+  --input-placeholder: #8a8d98;
 
-/* inputs */
-body[data-theme="light"] .search-wrapper input {
-  background: #fff;
-  border-color: rgba(0,0,0,.15);
-  color: #1c1c1f;
-}
+  --skeleton-1: rgba(0,0,0,0.05);
+  --skeleton-2: rgba(0,0,0,0.10);
 
-body[data-theme="light"] .search-wrapper input::placeholder {
-  color: #8a8d98;
-}
-
-/* tabela */
-body[data-theme="light"] .table-wrapper {
-  background: #fff;
-  backdrop-filter: none;
-}
-
-/* skeleton */
-body[data-theme="light"] .skeleton-card {
-  background: linear-gradient(
-    110deg,
-    rgba(0,0,0,0.05) 8%,
-    rgba(0,0,0,0.10) 18%,
-    rgba(0,0,0,0.05) 33%
-  );
-}
-
-/* card imagem placeholder */
-body[data-theme="light"] .card-image.placeholder {
-  background: #e5e6eb;
-  color: #777;
-}
-
-/* =========================
-   FIXES MODO CLARO
-   ========================= */
-
-body[data-theme="light"] {
-  --muted: #6b6f7c;
-}
-
-/* footer */
-body[data-theme="light"] .table-footer {
-  background: var(--panel);
-}
-
-/* botão inferior */
-body[data-theme="light"] .btn {
-  background: #f5f6f8;
-}
-
-body[data-theme="light"] .btn:hover {
-  background: #e9ebf0;
-}
-
-/* linhas / cards */
-.advanced-table tbody tr {
-  background: var(--row);
-}
-
-.advanced-table tbody tr:hover {
-  background: var(--row-hover);
+  background: var(--bg);
 }
