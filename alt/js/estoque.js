@@ -25,6 +25,8 @@ let totalRegistrosBusca = 0;
 let timerBusca;
 let domPronto = false;
 let authPronto = false;
+let operadorGlobal = "";
+let filtrosAtivos = [];
 
 let ordenacao = {
   campo: "descricao",
@@ -87,30 +89,67 @@ async function carregarEstoque(paginado = false) {
 
   let constraints = [];
 
+  /* =========================
+     1️⃣ WHERE – BUSCA TEXTO
+     ========================= */
   if (termoNormalizado.length > 0) {
     const termo = normalizarDescricao(termoNormalizado);
-
+  
     if (campoNormalizado === "descricao") {
       constraints.push(
         where("descricao_lower", ">=", termo),
-        where("descricao_lower", "<", termo + "\uf8ff"),
-        orderBy("descricao_lower", "asc")
+        where("descricao_lower", "<", termo + "\uf8ff")
       );
     } else {
       constraints.push(
         where(campoOrdenacao, ">=", termo),
-        where(campoOrdenacao, "<", termo + "\uf8ff"),
-        orderBy(campoOrdenacao, "asc")
+        where(campoOrdenacao, "<", termo + "\uf8ff")
       );
     }
   }
-
-  constraints.push(limit(PAGE_SIZE));
-
+  
+  /* =========================
+     2️⃣ WHERE – FILTROS AND
+     ========================= */
+  if (operadorGlobal === "AND" && filtrosAtivos.length) {
+    filtrosAtivos.forEach(f => {
+      constraints.push(where(f.campo, f.operador, f.valor));
+    });
+  }
+  
+  /* =========================
+     3️⃣ ORDER BY
+     ========================= */
+  // 🔥 se existir filtro com < ou >, ele manda no orderBy
+  const filtroRange = filtrosAtivos.find(f =>
+    f.operador === ">" || f.operador === "<"
+  );
+  
+  if (filtroRange) {
+    constraints.push(orderBy(filtroRange.campo, "asc"));
+  } else if (termoNormalizado.length > 0) {
+    constraints.push(orderBy(
+      campoNormalizado === "descricao"
+        ? "descricao_lower"
+        : campoOrdenacao,
+      "asc"
+    ));
+  } else {
+    constraints.push(orderBy(campoOrdenacao, ordenacao.direcao));
+  }
+  
+  /* =========================
+     4️⃣ START AFTER (PAGINAÇÃO)
+     ========================= */
   if (paginado && paginaAtual > 1 && cursores[paginaAtual - 1]) {
     constraints.push(startAfter(cursores[paginaAtual - 1]));
   }
-
+  
+  /* =========================
+     5️⃣ LIMIT (SEMPRE POR ÚLTIMO)
+     ========================= */
+  constraints.push(limit(PAGE_SIZE));
+  
   const q = query(qBase, ...constraints);
 
   const snap = forcarRede
@@ -543,6 +582,44 @@ function criarFiltroRow() {
   return div;
 }
 
+function obterFiltrosDoModal() {
+  return [...document.querySelectorAll(".filter-row")].map(row => ({
+    campo: row.querySelector(".campo").value,
+    operador: row.querySelector(".operador").value,
+    valor: normalizarValor(
+      row.querySelector(".valor").value,
+      row.querySelector(".campo").value
+    )
+  }));
+}
+
+function normalizarValor(valor, campo) {
+  if (campo === "qtde" || campo === "precoVenda") {
+    return Number(valor);
+  }
+
+  if (campo === "ativo") {
+    return valor === "true" || valor === "1";
+  }
+
+  return valor;
+}
+
 btnAddFiltro.addEventListener("click", () => {
   listaFiltros.appendChild(criarFiltroRow());
 });
+
+document.getElementById("btnAplicarFiltro").onclick = () => {
+  filtrosAtivos = obterFiltrosDoModal();
+  operadorGlobal = document.querySelector(
+    'input[name="operador-logico"]:checked'
+  ).value; // "AND" ou "OR"
+
+  paginaAtual = 1;
+  cursores = [];
+  ultimoDoc = null;
+  forcarRede = true;
+
+  fecharModalFiltro();
+  carregarEstoque();
+};
