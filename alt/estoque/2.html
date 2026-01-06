@@ -77,25 +77,52 @@
     // ====== dados fake (troque pelos seus dados do Firestore depois) ======
     let produtos = [];
     
+    function setStatusCarregando() {
+      const el = document.getElementById("status");
+      el.style.color = "#555";
+      el.innerText = "⏳ Carregando produtos...";
+    }
+    
+    function setStatusErro(msg) {
+      const el = document.getElementById("status");
+      el.style.color = "#b00020";
+      el.innerText = "❌ Erro ao carregar produtos: " + msg;
+    }
+    
+    function setStatusOk(qtde) {
+      const el = document.getElementById("status");
+      el.style.color = "#0a7";
+      el.innerText = `✅ ${qtde} produto(s) carregado(s)`;
+    }
+    
     async function carregarProdutosFirestore() {
-      const snap = await window._getDocs(
-        window._collection(window._db, "produtos")
-      );
+      try {
+        setStatusCarregando();
     
-      produtos = snap.docs.map(d => {
-        const p = d.data();
+        const snap = await window._getDocs(
+          window._collection(window._db, "produtos")
+        );
     
-        return {
-          cod: p.cod ?? "",
-          descricao: p.descricao ?? "",
-          categoria: p.categoria ?? "",
-          qtde: Number(p.qtde ?? 0),
-          precoVenda: Number(p.precoVenda ?? 0),
-          ativo: Boolean(p.ativo)
-        };
-      });
+        produtos = snap.docs.map(d => {
+          const p = d.data();
     
-      atualizar(); // 🔥 reaproveita tudo que já funciona
+          return {
+            cod: p.cod ?? "",
+            descricao: p.descricao ?? "",
+            categoria: p.categoria ?? "",
+            qtde: Number(p.qtde ?? 0),
+            precoVenda: Number(p.precoVenda ?? 0),
+            ativo: Boolean(p.ativo)
+          };
+        });
+    
+        setStatusOk(produtos.length);
+        atualizar(); // 🔥 reaproveita toda a lógica de filtro frontend
+    
+      } catch (err) {
+        console.error(err);
+        setStatusErro(err.message || "Falha desconhecida");
+      }
     }
     
     // ====== estado ======
