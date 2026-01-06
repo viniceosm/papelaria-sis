@@ -612,7 +612,6 @@ btnAddFiltro.addEventListener("click", () => {
 document.getElementById("btnAplicarFiltro").onclick = async () => {
   const btn = document.getElementById("btnAplicarFiltro");
 
-  // UI feedback
   btn.disabled = true;
   const textoOriginal = btn.innerText;
   btn.innerText = "Aplicando...";
@@ -628,11 +627,10 @@ document.getElementById("btnAplicarFiltro").onclick = async () => {
     ultimoDoc = null;
     forcarRede = true;
 
-    fecharModalFiltro();
+    document.getElementById("modalFiltro").classList.remove("open");
 
-    await carregarEstoque(); // ⬅️ importante aguardar
+    await carregarEstoque();
   } finally {
-    // restaura botão
     btn.innerText = textoOriginal;
     btn.disabled = false;
   }
