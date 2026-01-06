@@ -479,3 +479,34 @@ body[data-theme="light"] .card-image.placeholder {
   background: #e5e6eb;
   color: #777;
 }
+
+/* =========================
+   FIXES MODO CLARO
+   ========================= */
+
+body[data-theme="light"] {
+  --muted: #6b6f7c;
+}
+
+/* footer */
+body[data-theme="light"] .table-footer {
+  background: var(--panel);
+}
+
+/* botão inferior */
+body[data-theme="light"] .btn {
+  background: #f5f6f8;
+}
+
+body[data-theme="light"] .btn:hover {
+  background: #e9ebf0;
+}
+
+/* linhas / cards */
+.advanced-table tbody tr {
+  background: var(--row);
+}
+
+.advanced-table tbody tr:hover {
+  background: var(--row-hover);
+}
