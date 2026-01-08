@@ -40,6 +40,7 @@
   <table border="1" cellpadding="6" cellspacing="0">
     <thead>
       <tr>
+        <th>Imagem</th>
         <th>Cód</th>
         <th>Descrição</th>
         <th>Categoria</th>
@@ -118,7 +119,8 @@
             categoria: p.categoria ?? "",
             qtde: Number(p.qtde ?? 0),
             precoVenda: Number(p.precoVenda ?? 0),
-            ativo: Boolean(p.ativo)
+            ativo: Boolean(p.ativo),
+            imagem: p.imagem ?? ""
           };
         });
     
@@ -236,19 +238,31 @@
 
       for (const p of lista) {
         const tr = document.createElement("tr");
+
+        const imagemHTML = p.imagem
+          ? `<img 
+                src="${p.imagem}" 
+                loading="lazy"
+                style="width:50px;height:50px;object-fit:cover;border-radius:6px;"
+                alt="Imagem do produto"
+            >`
+          : `<span style="color:#999;font-size:12px;">Sem imagem</span>`;
+
         tr.innerHTML = `
+          <td>${imagemHTML}</td>
           <td>${p.cod}</td>
           <td>${p.descricao}</td>
           <td>${p.categoria}</td>
           <td>${p.qtde}</td>
-          <td>${Number(p.precoVenda).toFixed(2)}</td>
+          <td>R$ ${Number(p.precoVenda).toFixed(2)}</td>
           <td>${p.ativo ? "Sim" : "Não"}</td>
         `;
+
         tbody.appendChild(tr);
       }
 
       document.getElementById("info").innerText =
-        `Mostrando ${lista.length} de ${produtos.length} produto(s).`;
+        `Mostrando ${lista.length} produto(s).`;
     }
 
     function atualizar() {
