@@ -100,7 +100,13 @@
 
         try {
           snap = await getDocsFromCache(colRef);
+
+          if (snap.empty) {
+            throw new Error("Cache vazio");
+          }
+
           console.log("💾 Produtos carregados do CACHE");
+
         } catch {
           console.log("🌐 Cache vazio, buscando da REDE...");
           snap = await getDocs(colRef);
