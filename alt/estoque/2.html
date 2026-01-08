@@ -68,6 +68,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    try {
+      await enableIndexedDbPersistence(db);
+      console.log("💾 Persistência offline ATIVADA");
+    } catch (err) {
+      console.warn("⚠️ Persistência não ativada:", err.code);
+    }
+
     let produtos = [];
     
     function setStatusCarregando() {
@@ -91,26 +98,18 @@
     async function carregarProdutosFirestore() {
       try {
         setStatusCarregando();
-    
+
         const colRef = collection(db, "produtos");
         let snap;
-    
+
         try {
-          // 1️⃣ tenta cache
           snap = await getDocsFromCache(colRef);
-    
-          if (snap.empty) {
-            throw new Error("Cache vazio");
-          }
-    
-          console.log("📦 Produtos carregados do CACHE");
-    
-        } catch (e) {
-          // 2️⃣ fallback para rede
-          console.log("🌐 Buscando produtos da REDE...");
+          console.log("💾 Produtos carregados do CACHE");
+        } catch {
+          console.log("🌐 Cache vazio, buscando da REDE...");
           snap = await getDocs(colRef);
         }
-    
+
         produtos = snap.docs.map(d => {
           const p = d.data();
           return {
@@ -123,10 +122,10 @@
             imagem: p.imagem ?? ""
           };
         });
-    
+
         setStatusOk(produtos.length);
-        atualizar(); // aplica filtros frontend
-    
+        atualizar();
+
       } catch (err) {
         console.error(err);
         setStatusErro(err.message || "Erro desconhecido");
