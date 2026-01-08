@@ -4,53 +4,88 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Estoque (frontend simples)</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-6xl mx-auto p-4 space-y-4">
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="text-xl font-bold">📦 Estoque</h1>
+    </div>
 
-  <h2>📦 Estoque (frontend)</h2>
+    <div class="space-y-1">
+      <label class="text-sm font-medium">Buscar por descrição</label>
+      <input
+        id="busca"
+        type="text"
+        placeholder="Digite para buscar..."
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600"
+      />
+    </div>
 
-  <div>
-    <label>Busca por descrição:</label><br />
-    <input id="busca" type="text" placeholder="Digite para buscar..." />
+    <hr />
+
+    <div class="flex items-center gap-4">
+      <span class="text-sm font-medium">Operador:</span>
+
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="op" value="AND" checked class="accent-teal-600">
+        <span>AND</span>
+      </label>
+
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="op" value="OR" class="accent-teal-600">
+        <span>OR</span>
+      </label>
+    </div>
+
+    <hr />
+
+    <div class="space-y-2">
+      <h3 class="font-semibold">Filtros</h3>
+
+      <div id="filtros" class="space-y-2"></div>
+
+      <div class="flex gap-2">
+        <button
+          id="addFiltro"
+          class="rounded-lg border px-3 py-2 hover:bg-gray-100"
+        >
+          + Adicionar filtro
+        </button>
+
+        <button
+          id="limpar"
+          class="rounded-lg border px-3 py-2 text-red-600 hover:bg-red-50"
+        >
+          Limpar filtros
+        </button>
+      </div>
+    </div>
+
+    <hr />
+
+    <div id="status" class="text-sm"></div>
+    <div id="info" class="text-sm text-gray-600"></div>
+
+    <div class="overflow-x-auto rounded-xl border bg-white">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-left">
+          <tr>
+            <th class="px-3 py-2">Imagem</th>
+            <th class="px-3 py-2">Cód</th>
+            <th class="px-3 py-2">Descrição</th>
+            <th class="px-3 py-2">Categoria</th>
+            <th class="px-3 py-2">Qtde</th>
+            <th class="px-3 py-2">Preço</th>
+            <th class="px-3 py-2">Ativo</th>
+          </tr>
+        </thead>
+        <tbody id="tbody" class="divide-y"></tbody>
+      </table>
+    </div>
+
   </div>
-
-  <hr />
-
-  <div>
-    <label>Operador entre filtros:</label><br />
-    <label><input type="radio" name="op" value="AND" checked> AND</label>
-    <label><input type="radio" name="op" value="OR"> OR</label>
-  </div>
-
-  <hr />
-
-  <h3>Filtros</h3>
-
-  <div id="filtros"></div>
-
-  <button id="addFiltro">+ Adicionar filtro</button>
-  <button id="limpar">Limpar filtros</button>
-
-  <hr />
-
-  <div id="info"></div>
-
-  <div id="status"></div>
-
-  <table border="1" cellpadding="6" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Imagem</th>
-        <th>Cód</th>
-        <th>Descrição</th>
-        <th>Categoria</th>
-        <th>Qtde</th>
-        <th>Preço</th>
-        <th>Ativo</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -244,10 +279,12 @@
           ? `<img 
                 src="${p.imagem}" 
                 loading="lazy"
-                style="width:50px;height:50px;object-fit:cover;border-radius:6px;"
+                class="w-12 h-12 object-cover rounded-md"
                 alt="Imagem do produto"
             >`
           : `<span style="color:#999;font-size:12px;">Sem imagem</span>`;
+
+        tr.className = "hover:bg-gray-50";
 
         tr.innerHTML = `
           <td>${imagemHTML}</td>
@@ -273,9 +310,9 @@
     // ====== UI de filtro ======
     function criarRowFiltro() {
       const div = document.createElement("div");
-      div.className = "filtro-row";
+      div.className = "filtro-row flex gap-2 items-center bg-white p-2 rounded-lg border";
       div.innerHTML = `
-        <select class="campo">
+        <select class="campo rounded-lg border px-2 py-1">
           <option value="categoria">Categoria</option>
           <option value="qtde">Estoque</option>
           <option value="precoVenda">Preço</option>
@@ -283,11 +320,11 @@
           <option value="descricao">Descrição</option>
         </select>
 
-        <select class="operador"></select>
+        <select class="operador rounded-lg border px-2 py-1"></select>
 
-        <input class="valor" placeholder="Valor" />
+        <input class="valor rounded-lg border px-2 py-1 w-32" placeholder="Valor" />
 
-        <button type="button" class="remover">X</button>
+        <button type="button" class="remover text-red-600 hover:text-red-800">X</button>
       `;
 
       const selCampo = div.querySelector(".campo");
