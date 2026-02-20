@@ -126,42 +126,59 @@
       el.innerText = `✅ ${qtde} produto(s) carregado(s)`;
     }
 
+    function setStatusAtualizando() {
+      const el = document.getElementById("status");
+      el.className = "text-sm text-amber-600";
+      el.innerText = "🔄 Sincronizando com servidor...";
+    }
+
+    function mapearProdutos(snap) {
+      return snap.docs.map(d => {
+        const p = d.data();
+        return {
+          cod: p.cod ?? "",
+          descricao: p.descricao ?? "",
+          categoria: p.categoria ?? "",
+          qtde: Number(p.qtde ?? 0),
+          precoVenda: Number(p.precoVenda ?? 0),
+          ativo: Boolean(p.ativo),
+          imagem: p.imagem ?? ""
+        };
+      });
+    }
+
     async function carregarProdutosFirestore() {
       try {
         setStatusCarregando();
 
         const colRef = collection(db, "produtos");
-        let snap;
 
+        let carregouCache = false;
+
+        // 1️⃣ CACHE
         try {
-          snap = await getDocsFromCache(colRef);
+          const snapCache = await getDocsFromCache(colRef);
 
-          if (snap.empty) {
-            throw new Error("Cache vazio");
+          if (!snapCache.empty) {
+            console.log("💾 Produtos carregados do CACHE");
+            produtos = mapearProdutos(snapCache);
+            atualizar();
+            carregouCache = true;
           }
+        } catch {}
 
-          console.log("💾 Produtos carregados do CACHE");
-
-        } catch {
-          console.log("🌐 Cache vazio, buscando da REDE...");
-          snap = await getDocs(colRef);
+        // 2️⃣ REDE
+        if (carregouCache) {
+          setStatusAtualizando();
         }
 
-        produtos = snap.docs.map(d => {
-          const p = d.data();
-          return {
-            cod: p.cod ?? "",
-            descricao: p.descricao ?? "",
-            categoria: p.categoria ?? "",
-            qtde: Number(p.qtde ?? 0),
-            precoVenda: Number(p.precoVenda ?? 0),
-            ativo: Boolean(p.ativo),
-            imagem: p.imagem ?? ""
-          };
-        });
+        const snapRede = await getDocs(colRef);
+        console.log("🌐 Produtos sincronizados da REDE");
+
+        produtos = mapearProdutos(snapRede);
+        atualizar();
 
         setStatusOk(produtos.length);
-        atualizar();
 
       } catch (err) {
         console.error(err);
@@ -272,32 +289,34 @@
       const tbody = document.getElementById("tbody");
       tbody.innerHTML = "";
 
+      const fragment = document.createDocumentFragment();
+
       for (const p of lista) {
         const tr = document.createElement("tr");
+        tr.className = "hover:bg-gray-50";
 
         const imagemHTML = p.imagem
           ? `<img 
                 src="${p.imagem}" 
                 loading="lazy"
                 class="w-12 h-12 object-cover rounded-md"
-                alt="Imagem do produto"
             >`
-          : `<span style="color:#999;font-size:12px;">Sem imagem</span>`;
-
-        tr.className = "hover:bg-gray-50";
+          : `<span class="text-gray-400 text-xs">Sem imagem</span>`;
 
         tr.innerHTML = `
-          <td>${imagemHTML}</td>
-          <td>${p.cod}</td>
-          <td>${p.descricao}</td>
-          <td>${p.categoria}</td>
-          <td>${p.qtde}</td>
-          <td>R$ ${Number(p.precoVenda).toFixed(2)}</td>
-          <td>${p.ativo ? "Sim" : "Não"}</td>
+          <td class="px-3 py-2">${imagemHTML}</td>
+          <td class="px-3 py-2">${p.cod}</td>
+          <td class="px-3 py-2">${p.descricao}</td>
+          <td class="px-3 py-2">${p.categoria}</td>
+          <td class="px-3 py-2">${p.qtde}</td>
+          <td class="px-3 py-2">R$ ${Number(p.precoVenda).toFixed(2)}</td>
+          <td class="px-3 py-2">${p.ativo ? "Sim" : "Não"}</td>
         `;
 
-        tbody.appendChild(tr);
+        fragment.appendChild(tr);
       }
+
+      tbody.appendChild(fragment);
 
       document.getElementById("info").innerText =
         `Mostrando ${lista.length} produto(s).`;
@@ -305,6 +324,14 @@
 
     function atualizar() {
       renderTabela(filtrar());
+    }
+
+    function debounce(fn, delay = 300) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
     }
 
     // ====== UI de filtro ======
@@ -370,10 +397,11 @@
     }
 
     // ====== eventos ======
-    document.getElementById("busca").addEventListener("input", (e) => {
-      termoBusca = e.target.value;
-      atualizar();
-    });
+    document.getElementById("busca")
+      .addEventListener("input", debounce((e) => {
+        termoBusca = e.target.value;
+        atualizar();
+      }, 250));
 
     document.querySelectorAll('input[name="op"]').forEach(r => {
       r.addEventListener("change", () => {
