@@ -6,6 +6,33 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172033}*{box-sizing:border-box}body{margin:0}#map{height:100dvh;width:100%}.leaflet-container{background:#e9edf2}.leaflet-control-zoom{margin-top:75px!important}.topbar{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:900;background:#fff;border-radius:16px;padding:11px 18px;box-shadow:0 3px 18px #0002;font-size:15px;font-weight:750;white-space:nowrap}.sheet{position:absolute;z-index:1000;bottom:0;left:0;width:100%;height:min(77dvh,690px);background:white;border-radius:22px 22px 0 0;box-shadow:0 -5px 28px #0003;display:flex;flex-direction:column;transform:translateY(calc(100% - 112px));transition:transform .25s ease;overflow:hidden}.sheet.open{transform:translateY(0)}.sheet-handle{border:0;background:transparent;width:100%;padding:10px 14px 8px;cursor:pointer;text-align:center;touch-action:none}.grip{display:block;width:42px;height:5px;border-radius:10px;background:#c9cdd5;margin:0 auto 10px}.sheet-summary{display:flex;justify-content:space-between;align-items:center;gap:10px}.sheet-summary strong{font-size:17px}.sheet-summary small{color:#667085;font-size:12px}.chevron{font-size:23px;color:#667085}.sheet-content{overflow-y:auto;overscroll-behavior:contain;padding:0 16px 28px;flex:1}.section-title{position:sticky;top:0;background:white;padding:15px 0 8px;margin:0;font-size:13px;color:#596579;text-transform:uppercase;letter-spacing:.07em;z-index:2}.stop{display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid #eef0f3;padding:12px 0}.num{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#386c6f;color:#fff;font-weight:750;font-size:13px}.stop-body{min-width:0;flex:1}.stop-name{font-size:15px;font-weight:700;margin-bottom:3px}.stop-address{font-size:13px;color:#667085;line-height:1.45}.stop-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.maps-link,.view-btn{font:inherit;font-size:12px;font-weight:650;text-decoration:none;border-radius:9px;padding:8px 11px;cursor:pointer}.maps-link{background:#386c6f;color:white}.view-btn{background:#eff4ff;color:#1d4ed8;border:0}.marker-num{display:grid;place-items:center;background:#386c6f;border:2px solid white;border-radius:50%;width:38px;height:38px;color:white;font-weight:800;font-size:12px;box-shadow:0 2px 9px #0005}.leaflet-tooltip{font-weight:650;font-size:11px;border-radius:7px;padding:3px 6px;box-shadow:0 1px 5px #0002}.leaflet-popup-content a{color:#386c6f;font-weight:700}.notice{font-size:11px;color:#667085;margin-top:15px;line-height:1.5}@media(min-width:900px){.sheet{left:18px;bottom:18px;width:390px;height:min(80dvh,730px);border-radius:20px;transform:translateY(calc(100% - 112px))}.topbar{left:50%}}
+.bairro-label {
+  background: #386c6f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: bold;
+}
+.bairro-label::before {
+  display: none;
+}
+.rua-label-container {
+  background: transparent;
+  border: none;
+}
+
+.rua-label {
+  display: inline-block;
+  background: #e67e22;
+  color: white;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px #0003;
+}
 </style>
 </head>
 <body>
@@ -60,6 +87,119 @@ for(const bairro of ['Pari','Brás','Centro']){
  }
 }
 const note=document.createElement('p');note.className='notice';note.textContent='Os pontos no Leaflet usam coordenadas aproximadas. Para navegação até a loja, use o botão Abrir no Maps.';content.append(note);
+
+
+async function desenharBairro(nome, distrito = nome) {
+  const url = 'https://nominatim.openstreetmap.org/search?' +
+    new URLSearchParams({
+      q: `${distrito}, São Paulo, SP, Brasil`,
+      format: 'json',
+      polygon_geojson: 1,
+      addressdetails: 1,
+      limit: 10
+    });
+
+  try {
+    const resposta = await fetch(url);
+
+    if (!resposta.ok) {
+      throw new Error(`HTTP ${resposta.status}`);
+    }
+
+    const dados = await resposta.json();
+
+    const candidatos = dados.filter(item =>
+      item.geojson &&
+      ['Polygon', 'MultiPolygon'].includes(item.geojson.type)
+    );
+
+    const bairro = candidatos.find(item =>
+      item.type === 'administrative' ||
+      item.addresstype === 'suburb' ||
+      item.addresstype === 'city_district'
+    ) || candidatos[0];
+
+    if (!bairro) {
+      console.warn('Limites não encontrados:', nome, dados);
+      return;
+    }
+
+    console.log('Bairro encontrado:', nome, bairro.display_name);
+
+    L.geoJSON(bairro.geojson, {
+      style: {
+        color: '#386c6f',
+        weight: 3,
+        fillColor: '#386c6f',
+        fillOpacity: 0.08
+      }
+    })
+    .addTo(map)
+    .bindTooltip(nome, {
+      permanent: true,
+      direction: 'center',
+      className: 'bairro-label'
+    });
+
+  } catch (erro) {
+    console.error('Erro ao carregar bairro:', nome, erro);
+  }
+}
+
+// Carrega os três bairros
+async function carregarBairros() {
+  const bairros = [
+    { nome: 'Pari', busca: 'Pari' },
+    { nome: 'Brás', busca: 'Brás' },
+    { nome: 'Centro', busca: 'Sé' }
+  ];
+
+  for (const bairro of bairros) {
+    await desenharBairro(bairro.nome, bairro.busca);
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 1200)
+    );
+  }
+}
+
+carregarBairros();
+
+
+
+
+async function desenharRua25DeMarco() {
+  try {
+    const resposta = await fetch('./rua-25-de-marco.geojson');
+
+    if (!resposta.ok) {
+      throw new Error(`HTTP ${resposta.status}`);
+    }
+
+    const geojson = await resposta.json();
+
+    const rua = L.geoJSON(geojson, {
+      style: {
+        color: '#e67e22',
+        weight: 6,
+        opacity: 0.9
+      }
+    }).addTo(map);
+
+    rua.bindTooltip('Rua 25 de Março', {
+      permanent: true,
+      direction: 'center',
+      className: 'rua-label'
+    });
+
+    console.log('Rua 25 de Março desenhada!');
+  } catch (erro) {
+    console.error('Erro ao carregar a rua:', erro);
+  }
+}
+
+desenharRua25DeMarco();
+
 </script>
 </body>
 </html>
