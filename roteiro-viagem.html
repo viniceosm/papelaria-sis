@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roteiro de compras — São Paulo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172033}*{box-sizing:border-box}body{margin:0}#map{height:100dvh;width:100%}.leaflet-container{background:#e9edf2}.leaflet-control-zoom{margin-top:75px!important}.topbar{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:900;background:#fff;border-radius:16px;padding:11px 18px;box-shadow:0 3px 18px #0002;font-size:15px;font-weight:750;white-space:nowrap}.sheet{position:absolute;z-index:1000;bottom:0;left:0;width:100%;height:min(77dvh,690px);background:white;border-radius:22px 22px 0 0;box-shadow:0 -5px 28px #0003;display:flex;flex-direction:column;transform:translateY(calc(100% - 112px));transition:transform .25s ease;overflow:hidden}.sheet.open{transform:translateY(0)}.sheet-handle{border:0;background:transparent;width:100%;padding:10px 14px 8px;cursor:pointer;text-align:center;touch-action:none}.grip{display:block;width:42px;height:5px;border-radius:10px;background:#c9cdd5;margin:0 auto 10px}.sheet-summary{display:flex;justify-content:space-between;align-items:center;gap:10px}.sheet-summary strong{font-size:17px}.sheet-summary small{color:#667085;font-size:12px}.chevron{font-size:23px;color:#667085}.sheet-content{overflow-y:auto;overscroll-behavior:contain;padding:0 16px 28px;flex:1}.section-title{position:sticky;top:0;background:white;padding:15px 0 8px;margin:0;font-size:13px;color:#596579;text-transform:uppercase;letter-spacing:.07em;z-index:2}.stop{display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid #eef0f3;padding:12px 0}.num{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#386c6f;color:#fff;font-weight:750;font-size:13px}.stop-body{min-width:0;flex:1}.stop-name{font-size:15px;font-weight:700;margin-bottom:3px}.stop-address{font-size:13px;color:#667085;line-height:1.45}.stop-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.maps-link,.view-btn{font:inherit;font-size:12px;font-weight:650;text-decoration:none;border-radius:9px;padding:8px 11px;cursor:pointer}.maps-link{background:#386c6f;color:white}.view-btn{background:#eff4ff;color:#1d4ed8;border:0}.marker-num{display:grid;place-items:center;background:#386c6f;border:2px solid white;border-radius:50%;width:38px;height:38px;color:white;font-weight:800;font-size:12px;box-shadow:0 2px 9px #0005}.leaflet-tooltip{font-weight:650;font-size:11px;border-radius:7px;padding:3px 6px;box-shadow:0 1px 5px #0002}.leaflet-popup-content a{color:#386c6f;font-weight:700}.notice{font-size:11px;color:#667085;margin-top:15px;line-height:1.5}@media(min-width:900px){.sheet{left:18px;bottom:18px;width:390px;height:min(80dvh,730px);border-radius:20px;transform:translateY(calc(100% - 112px))}.topbar{left:50%}}
+</style>
+</head>
+<body>
+<div id="map"></div><div class="topbar">🛍️ Roteiro de compras · SP</div>
+<aside id="sheet" class="sheet" aria-label="Lista de lojas">
+<button id="sheetToggle" class="sheet-handle" type="button" aria-expanded="false"><span class="grip"></span><span class="sheet-summary"><span style="text-align:left"><strong>9 lojas no roteiro</strong><br><small>Pari → Brás → Centro · toque para expandir</small></span><span id="chevron" class="chevron">⌃</span></span></button>
+<div id="sheetContent" class="sheet-content"></div>
+</aside>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Coordenadas APROXIMADAS para visualização; confira a localização nos links oficiais do Maps.
+const lojas=[
+{numero:1,nome:'VPA Atacadista',endereco:'Rua Tiers, 534',bairro:'Pari',lat:-23.5287,lng:-46.6220,maps:'https://maps.app.goo.gl/9XaCwGicL7fj3sPs9'},
+{numero:2,nome:'Nipo Center',endereco:'Rua Tiers, 533',bairro:'Pari',lat:-23.5287,lng:-46.6220,maps:'https://maps.app.goo.gl/TVQoDrv1Dn6vLKxV9'},
+{numero:3,nome:'New Shop',endereco:'Rua Maria Marcolina, 548',bairro:'Brás',lat:-23.5390,lng:-46.6175,maps:'https://maps.app.goo.gl/fn5827m8ZBXBqzqTA'},
+{numero:4,nome:'Brascol',endereco:'Rua Maria Marcolina, 748/764',bairro:'Brás',lat:-23.5383,lng:-46.6157,maps:'https://maps.app.goo.gl/EJAY13QJ4M6DUWjV8'},
+{numero:5,nome:'Armarinhos Queiroz',endereco:'Rua Carlos de Sousa Nazaré, 442',bairro:'Centro',lat:-23.5395,lng:-46.6290,maps:'https://maps.app.goo.gl/aBLa9o8PdpNb31Br8'},
+{numero:6,nome:'Armarinhos Fernando',endereco:'Rua Carlos de Sousa Nazaré, 251/259',bairro:'Centro',lat:-23.5410,lng:-46.6310,maps:'https://maps.app.goo.gl/Fuc4UXHMewBuLy1m9'},
+{numero:7,nome:'Lona Papelaria & Acessórios',endereco:'Rua Miguel Carlos, 56, Loja 09 – Shopping Miguel Carlos',bairro:'Centro',lat:-23.5412,lng:-46.6314,maps:'https://maps.app.goo.gl/LKi2He3rZPRFt1xR7'},
+{numero:8,nome:'CXCY Acessórios',endereco:'Av. Senador Queirós, 611',bairro:'Centro',lat:-23.5398,lng:-46.6340,maps:'https://maps.app.goo.gl/ut6qnX9vBhpYY6LZ9'},
+{numero:9,nome:'O Bolsão',endereco:'Av. Senador Queirós, 611',bairro:'Centro',lat:-23.5398,lng:-46.6340,maps:'https://maps.app.goo.gl/2uorJ1ptbxDc1V9q7'}
+];
+const map=L.map('map',{zoomControl:false});L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19}).addTo(map);
+const sheet=document.getElementById('sheet'),toggle=document.getElementById('sheetToggle'),chevron=document.getElementById('chevron');
+function setSheet(open){sheet.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open));chevron.textContent=open?'⌄':'⌃';}
+toggle.addEventListener('click',()=>setSheet(!sheet.classList.contains('open')));
+let startY=null;toggle.addEventListener('touchstart',e=>{startY=e.touches[0].clientY},{passive:true});toggle.addEventListener('touchend',e=>{if(startY===null)return;const dy=e.changedTouches[0].clientY-startY;if(Math.abs(dy)>35){setSheet(dy<0);e.preventDefault()}startY=null});
+const grupos=new Map();for(const loja of lojas){const key=`${loja.lat},${loja.lng}`;if(!grupos.has(key))grupos.set(key,[]);grupos.get(key).push(loja)}
+const bounds=L.latLngBounds([]);const marcadores=new Map();
+for(const grupo of grupos.values()){
+ const {lat,lng}=grupo[0],nums=grupo.map(l=>l.numero).join('/');
+ const icon=L.divIcon({className:'',html:`<div class="marker-num">${nums}</div>`,iconSize:[38,38],iconAnchor:[19,19]});
+ const popup=grupo.map(l=>`<strong>${l.numero}. ${l.nome}</strong><br>${l.endereco}<br>${l.bairro} — São Paulo/SP<br><a href="${l.maps}" target="_blank" rel="noopener noreferrer">Abrir no Google Maps ↗</a>`).join('<hr>');
+ const marker=L.marker([lat,lng],{icon}).addTo(map).bindPopup(popup).bindTooltip(grupo.map(l=>l.nome).join(' / '),{permanent:true,direction:'top',offset:[0,-18]});
+ for(const loja of grupo)marcadores.set(loja.numero,marker);bounds.extend([lat,lng]);
+}
+map.fitBounds(bounds,{padding:[45,45],maxZoom:15});
+const content=document.getElementById('sheetContent');
+for(const bairro of ['Pari','Brás','Centro']){
+ const h=document.createElement('h3');h.className='section-title';h.textContent=bairro;content.append(h);
+ for(const loja of lojas.filter(l=>l.bairro===bairro)){
+  const item=document.createElement('div');item.className='stop';
+  const number=document.createElement('span');number.className='num';number.textContent=loja.numero;
+  const body=document.createElement('div');body.className='stop-body';
+  const name=document.createElement('div');name.className='stop-name';name.textContent=loja.nome;
+  const address=document.createElement('div');address.className='stop-address';address.textContent=loja.endereco;
+  const actions=document.createElement('div');actions.className='stop-actions';
+  const view=document.createElement('button');view.className='view-btn';view.textContent='Ver no mapa';view.onclick=()=>{setSheet(false);map.setView([loja.lat,loja.lng],17,{animate:true});marcadores.get(loja.numero).openPopup()};
+  const link=document.createElement('a');link.className='maps-link';link.textContent='Abrir no Maps ↗';link.href=loja.maps;link.target='_blank';link.rel='noopener noreferrer';
+  actions.append(view,link);body.append(name,address,actions);item.append(number,body);content.append(item);
+ }
+}
+const note=document.createElement('p');note.className='notice';note.textContent='Os pontos no Leaflet usam coordenadas aproximadas. Para navegação até a loja, use o botão Abrir no Maps.';content.append(note);
+</script>
+</body>
+</html>
