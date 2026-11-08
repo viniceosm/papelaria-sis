@@ -56,6 +56,85 @@ const lojas=[
 {numero:9,nome:'O Bolsão',endereco:'Av. Senador Queirós, 611',bairro:'Centro',lat:-23.5398,lng:-46.6340,maps:'https://maps.app.goo.gl/2uorJ1ptbxDc1V9q7'}
 ];
 const map=L.map('map',{zoomControl:false});L.control.zoom({position:'topright'}).addTo(map);
+
+let marcadorUsuario = null;
+let circuloPrecisao = null;
+
+function localizarUsuario() {
+  map.locate({
+    watch: true,
+    setView: false,
+    enableHighAccuracy: true,
+    maximumAge: 0
+  });
+}
+
+map.on('locationfound', (e) => {
+  const posicao = e.latlng;
+
+  if (!marcadorUsuario) {
+    marcadorUsuario = L.circleMarker(posicao, {
+      radius: 9,
+      color: '#ffffff',
+      weight: 3,
+      fillColor: '#2563eb',
+      fillOpacity: 1
+    }).addTo(map);
+
+    circuloPrecisao = L.circle(posicao, {
+      radius: e.accuracy,
+      color: '#2563eb',
+      fillColor: '#2563eb',
+      fillOpacity: 0.12,
+      weight: 1
+    }).addTo(map);
+
+    map.setView(posicao, 17);
+  } else {
+    marcadorUsuario.setLatLng(posicao);
+    circuloPrecisao.setLatLng(posicao);
+    circuloPrecisao.setRadius(e.accuracy);
+  }
+});
+
+map.on('locationerror', (e) => {
+  console.error('Erro na localização:', e.message);
+});
+
+const BotaoLocalizacao = L.Control.extend({
+  options: { position: 'topright' },
+
+  onAdd: function () {
+    const botao = L.DomUtil.create(
+      'button',
+      'botao-localizacao'
+    );
+
+    botao.innerHTML = '◎';
+    botao.title = 'Minha localização';
+
+    Object.assign(botao.style, {
+      width: '36px',
+      height: '36px',
+      background: 'white',
+      border: '2px solid #ccc',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '24px'
+    });
+
+    L.DomEvent.disableClickPropagation(botao);
+
+    L.DomEvent.on(botao, 'click', () => {
+      localizarUsuario();
+    });
+
+    return botao;
+  }
+});
+
+map.addControl(new BotaoLocalizacao());
+
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19}).addTo(map);
 const sheet=document.getElementById('sheet'),toggle=document.getElementById('sheetToggle'),chevron=document.getElementById('chevron');
 function setSheet(open){sheet.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open));chevron.textContent=open?'⌄':'⌃';}
@@ -164,9 +243,6 @@ async function carregarBairros() {
 }
 
 carregarBairros();
-
-
-
 
 async function desenharRua25DeMarco() {
   try {
